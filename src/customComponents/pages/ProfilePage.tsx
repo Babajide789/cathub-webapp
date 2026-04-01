@@ -1,12 +1,12 @@
 import { Settings, MapPin, Calendar, Mail, Phone, Edit } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
-import { Button } from "../components/ui/button";
-import { Card } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { CatCard } from "../components/CatCard";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductCard } from "../components/ProductCard";
-import { Separator } from "../components/ui/separator";
+import { Separator } from "@/components/ui/separator";
 import { mockCats, mockProducts } from "../data/mockData";
+import { CatCard } from "../components/CatCard";
 
 export function ProfilePage() {
   const userListings = mockCats.slice(0, 2);
@@ -16,7 +16,7 @@ export function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Profile Header */}
-      <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-12 border-b">
+      <div className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 py-12 border-b">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             <Avatar className="w-24 h-24">
@@ -97,7 +97,7 @@ export function ProfilePage() {
               </div>
             ) : (
               <Card className="p-12 text-center">
-                <p className="text-muted-foreground mb-4">You haven't posted any listings yet</p>
+                <p className="text-muted-foreground mb-4">You haven&apost posted any listings yet</p>
                 <Button>Create Your First Listing</Button>
               </Card>
             )}
@@ -113,7 +113,7 @@ export function ProfilePage() {
               </div>
             ) : (
               <Card className="p-12 text-center">
-                <p className="text-muted-foreground">You haven't saved any items yet</p>
+                <p className="text-muted-foreground">You haven&apost saved any items yet</p>
               </Card>
             )}
           </TabsContent>
@@ -124,7 +124,7 @@ export function ProfilePage() {
               {orderHistory.map((product) => (
                 <Card key={product.id} className="p-4">
                   <div className="flex gap-4">
-                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                       <img
                         src={product.image}
                         alt={product.name}

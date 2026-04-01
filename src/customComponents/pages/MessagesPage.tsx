@@ -1,11 +1,13 @@
+"use client";
+
 import { useState } from "react";
 import { Search, Send, MoreVertical, Phone, Video } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
-import { Input } from "../components/ui/input";
-import { Button } from "../components/ui/button";
-import { Card } from "../components/ui/card";
-import { Separator } from "../components/ui/separator";
-import { ScrollArea } from "../components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const conversations = [
   {
@@ -106,7 +108,7 @@ export function MessagesPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-1">
                         <p className="font-medium truncate">{conversation.name}</p>
-                        <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
+                        <span className="text-xs text-muted-foreground shrink-0 ml-2">
                           {conversation.timestamp}
                         </span>
                       </div>
@@ -115,7 +117,7 @@ export function MessagesPage() {
                       </p>
                     </div>
                     {conversation.unread && (
-                      <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-2"></div>
+                      <div className="w-2 h-2 bg-primary rounded-full shrink-0 mt-2"></div>
                     )}
                   </button>
                 ))}

@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router";
 import { ArrowLeft, ShoppingCart, Heart, Share2, Star, Minus, Plus, Package, Truck, RefreshCw } from "lucide-react";
-import { Button } from "../components/ui/button";
-import { Card } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import { Separator } from "../components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductCard } from "../components/ProductCard";
 import { mockProducts } from "../data/mockData";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 export function ProductDetailPage() {
   const { id } = useParams();
@@ -18,7 +19,7 @@ export function ProductDetailPage() {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h2>Product not found</h2>
-        <Link to="/shop">
+        <Link href="/shop">
           <Button className="mt-4">Back to Shop</Button>
         </Link>
       </div>
@@ -32,7 +33,7 @@ export function ProductDetailPage() {
       {/* Header */}
       <div className="bg-white border-b sticky top-0 md:top-16 z-40">
         <div className="container mx-auto px-4 py-4">
-          <Link to="/shop">
+          <Link href="/shop">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Shop
@@ -138,7 +139,7 @@ export function ProductDetailPage() {
             {/* Features */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
                   <Truck className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
@@ -147,7 +148,7 @@ export function ProductDetailPage() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
                   <Package className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
@@ -156,7 +157,7 @@ export function ProductDetailPage() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
                   <RefreshCw className="w-5 h-5 text-purple-600" />
                 </div>
                 <div>
