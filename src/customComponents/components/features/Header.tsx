@@ -25,8 +25,8 @@ const navItems = [
   { path: "/", label: "Home", icon: Home },
   { path: "/adopt", label: "Adopt", icon: Heart },
   { path: "/shop", label: "Shop", icon: ShoppingBag },
-  { path: "/community", label: "Community", icon: Users },
-  { path: "/profile", label: "Profile", icon: User },
+  { path: "/services", label: "Services", icon: Users },
+  { path: "/community", label: "Community", icon: User },
 ];
 
 export function Header() {

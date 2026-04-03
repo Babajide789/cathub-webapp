@@ -1,11 +1,13 @@
+"use client";
+
 import { useState } from "react";
-import { Link } from "react-router";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from "lucide-react";
-import { Button } from "../components/ui/button";
-import { Card } from "../components/ui/card";
-import { Separator } from "../components/ui/separator";
-import { Input } from "../components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
 import { mockProducts, mockCartItems } from "../data/mockData";
+import Link from "next/link";
 
 export function CartPage() {
   const [cartItems, setCartItems] = useState(
@@ -43,7 +45,7 @@ export function CartPage() {
           </div>
           <h2 className="mb-2">Your cart is empty</h2>
           <p className="text-muted-foreground mb-6">Add some items to get started!</p>
-          <Link to="/shop">
+          <Link href="/shop">
             <Button>
               Start Shopping
             </Button>
@@ -58,7 +60,7 @@ export function CartPage() {
       {/* Header */}
       <div className="bg-white border-b sticky top-0 md:top-16 z-40">
         <div className="container mx-auto px-4 py-4">
-          <Link to="/shop">
+          <Link href="/shop">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Continue Shopping
@@ -76,7 +78,7 @@ export function CartPage() {
             {cartItems.map((item) => (
               <Card key={item.productId} className="p-4">
                 <div className="flex gap-4">
-                  <Link to={`/shop/${item.productId}`} className="flex-shrink-0">
+                  <Link href={`/shop/${item.productId}`} className="flex-shrink-0">
                     <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100">
                       <img
                         src={item.product.image}
@@ -86,7 +88,7 @@ export function CartPage() {
                     </div>
                   </Link>
                   <div className="flex-1 min-w-0">
-                    <Link to={`/shop/${item.productId}`}>
+                    <Link href={`/shop/${item.productId}`}>
                       <h3 className="mb-1 line-clamp-2 hover:text-primary transition-colors">
                         {item.product.name}
                       </h3>
