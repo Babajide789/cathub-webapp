@@ -1,4 +1,4 @@
-import { MessagesPage } from "@/customComponents/pages/MessagesPage";
+import MessagesPage from "@/customComponents/pages/MessagesPage";
 
 
 
