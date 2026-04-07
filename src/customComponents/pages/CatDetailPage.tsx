@@ -1,16 +1,21 @@
+"use client";
+
 import { useState } from "react";
-import { useParams, Link } from "react-router";
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import { ArrowLeft, MapPin, Calendar, Heart, Share2, CheckCircle2, Phone, Mail } from "lucide-react";
-import { Button } from "../components/ui/button";
-import { Card } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
-import { Separator } from "../components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockCats } from "../data/mockData";
 
 export function CatDetailPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
+
   const cat = mockCats.find((c) => c.id === id);
   const [selectedImage, setSelectedImage] = useState(0);
 
@@ -18,7 +23,7 @@ export function CatDetailPage() {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h2>Cat not found</h2>
-        <Link to="/adopt">
+        <Link href="/adopt">
           <Button className="mt-4">Back to Adoption</Button>
         </Link>
       </div>
@@ -30,7 +35,7 @@ export function CatDetailPage() {
       {/* Header */}
       <div className="bg-white border-b sticky top-0 md:top-16 z-40">
         <div className="container mx-auto px-4 py-4">
-          <Link to="/adopt">
+          <Link href="/adopt">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Adoption

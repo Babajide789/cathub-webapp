@@ -1,4 +1,8 @@
+"use client";
+
 import { useState } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import { ArrowLeft, ShoppingCart, Heart, Share2, Star, Minus, Plus, Package, Truck, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,11 +11,11 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductCard } from "../components/ProductCard";
 import { mockProducts } from "../data/mockData";
-import Link from "next/link";
-import { useParams } from "next/navigation";
 
 export function ProductDetailPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
+
   const product = mockProducts.find((p) => p.id === id);
   const [quantity, setQuantity] = useState(1);
 
