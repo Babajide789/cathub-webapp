@@ -78,7 +78,7 @@ export function CartPage() {
             {cartItems.map((item) => (
               <Card key={item.productId} className="p-4">
                 <div className="flex gap-4">
-                  <Link href={`/shop/${item.productId}`} className="flex-shrink-0">
+                  <Link href={`/shop/${item.productId}`} className="shrink-0">
                     <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100">
                       <img
                         src={item.product.image}
@@ -128,7 +128,7 @@ export function CartPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="flex-shrink-0"
+                    className="shrink-0"
                     onClick={() => removeItem(item.productId)}
                   >
                     <Trash2 className="w-4 h-4 text-destructive" />
@@ -191,7 +191,7 @@ export function CartPage() {
 
               <Card className="p-4 mt-4 bg-blue-50 border-blue-100">
                 <div className="flex items-start gap-3">
-                  <ShoppingBag className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <ShoppingBag className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                   <div className="text-sm">
                     <p className="font-medium text-blue-900 mb-1">Free Shipping</p>
                     <p className="text-blue-700">On all orders over $50</p>
