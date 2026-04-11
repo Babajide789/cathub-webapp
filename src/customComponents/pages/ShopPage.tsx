@@ -1,22 +1,112 @@
-"use client"
+"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Filter } from "lucide-react";
 import { ProductCard } from "../components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { mockProducts } from "../data/mockData";
+
+import { getProducts } from "@/lib/api/products";
+import { Product } from "@/types";
 
 export function ShopPage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
 
-  const filteredProducts = selectedCategory === "all"
-    ? mockProducts
-    : mockProducts.filter((p) => p.category.toLowerCase() === selectedCategory);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // ✅ FILTER STATES
+  const [search, setSearch] = useState("");
+  const [priceRange, setPriceRange] = useState("all");
+  const [rating, setRating] = useState("all");
+  const [availability, setAvailability] = useState("all");
+  const [sortBy, setSortBy] = useState("popular");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getProducts();
+        setProducts(data);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // ✅ FULL FILTER + SORT LOGIC
+  const filteredProducts = products
+    .filter((p) => {
+      if (
+        selectedCategory !== "all" &&
+        !p.category.toLowerCase().includes(selectedCategory)
+      ) {
+        return false;
+      }
+
+      if (search && !p.name.toLowerCase().includes(search.toLowerCase())) {
+        return false;
+      }
+
+      if (priceRange !== "all") {
+        if (priceRange === "0-20" && p.price > 20) return false;
+        if (priceRange === "20-50" && (p.price < 20 || p.price > 50))
+          return false;
+        if (priceRange === "50-100" && (p.price < 50 || p.price > 100))
+          return false;
+        if (priceRange === "100+" && p.price < 100) return false;
+      }
+
+      if (rating !== "all") {
+        if (rating === "4+" && p.rating < 4) return false;
+        if (rating === "3+" && p.rating < 3) return false;
+      }
+
+      if (availability === "in-stock" && !p.inStock) {
+        return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "price-low":
+          return a.price - b.price;
+        case "price-high":
+          return b.price - a.price;
+        case "rating":
+          return b.rating - a.rating;
+        default:
+          return 0;
+      }
+    });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Loading products...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -24,7 +114,9 @@ export function ShopPage() {
       <div className="bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 md:py-12 border-b">
         <div className="container mx-auto px-4">
           <h1 className="mb-2">Cat Supplies & Accessories</h1>
-          <p className="text-muted-foreground">Everything your cat needs to live their best life</p>
+          <p className="text-muted-foreground">
+            Everything your cat needs to live their best life
+          </p>
         </div>
       </div>
 
@@ -44,22 +136,29 @@ export function ShopPage() {
         </div>
 
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Desktop Filters Sidebar */}
+          {/* Sidebar */}
           <aside className="hidden md:block w-64 shrink-0">
             <div className="sticky top-24">
               <h3 className="mb-4">Filters</h3>
 
               <div className="space-y-6">
+                {/* Search */}
                 <div>
                   <Label>Search</Label>
-                  <Input placeholder="Search products..." className="mt-2" />
+                  <Input
+                    placeholder="Search products..."
+                    className="mt-2"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
                 </div>
 
+                {/* Price */}
                 <div>
                   <Label>Price Range</Label>
-                  <Select>
+                  <Select value={priceRange} onValueChange={setPriceRange}>
                     <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="Any price" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Any price</SelectItem>
@@ -71,11 +170,12 @@ export function ShopPage() {
                   </Select>
                 </div>
 
+                {/* Rating */}
                 <div>
                   <Label>Rating</Label>
-                  <Select>
+                  <Select value={rating} onValueChange={setRating}>
                     <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="Any rating" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Any rating</SelectItem>
@@ -85,11 +185,15 @@ export function ShopPage() {
                   </Select>
                 </div>
 
+                {/* Availability */}
                 <div>
                   <Label>Availability</Label>
-                  <Select>
+                  <Select
+                    value={availability}
+                    onValueChange={setAvailability}
+                  >
                     <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="All products" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All products</SelectItem>
@@ -98,8 +202,21 @@ export function ShopPage() {
                   </Select>
                 </div>
 
-                <Button className="w-full">Apply Filters</Button>
-                <Button variant="outline" className="w-full">Reset</Button>
+                {/* Reset */}
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    setSearch("");
+                    setPriceRange("all");
+                    setRating("all");
+                    setAvailability("all");
+                    setSortBy("popular");
+                    setSelectedCategory("all");
+                  }}
+                >
+                  Reset
+                </Button>
               </div>
             </div>
           </aside>
@@ -111,6 +228,7 @@ export function ShopPage() {
               <p className="text-sm text-muted-foreground">
                 Showing {filteredProducts.length} products
               </p>
+
               <div className="flex items-center gap-2">
                 <Sheet>
                   <SheetTrigger asChild>
@@ -119,47 +237,46 @@ export function ShopPage() {
                       Filters
                     </Button>
                   </SheetTrigger>
+
                   <SheetContent side="left">
                     <SheetHeader>
                       <SheetTitle>Filters</SheetTitle>
                     </SheetHeader>
+
                     <div className="mt-6 space-y-6">
-                      <div>
-                        <Label>Search</Label>
-                        <Input placeholder="Search products..." className="mt-2" />
-                      </div>
-                      <div>
-                        <Label>Price Range</Label>
-                        <Select>
-                          <SelectTrigger className="mt-2">
-                            <SelectValue placeholder="Any price" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Any price</SelectItem>
-                            <SelectItem value="0-20">Under $20</SelectItem>
-                            <SelectItem value="20-50">$20 - $50</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      <Input
+                        placeholder="Search..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                      />
+
                       <Button className="w-full">Apply Filters</Button>
                     </div>
                   </SheetContent>
                 </Sheet>
-                <Select defaultValue="popular">
+
+                {/* Sorting */}
+                <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="w-40">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="popular">Most Popular</SelectItem>
-                    <SelectItem value="price-low">Price: Low to High</SelectItem>
-                    <SelectItem value="price-high">Price: High to Low</SelectItem>
-                    <SelectItem value="rating">Highest Rated</SelectItem>
+                    <SelectItem value="price-low">
+                      Price: Low to High
+                    </SelectItem>
+                    <SelectItem value="price-high">
+                      Price: High to Low
+                    </SelectItem>
+                    <SelectItem value="rating">
+                      Highest Rated
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            {/* Products Grid */}
+            {/* Products */}
             {filteredProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProducts.map((product) => (
@@ -168,7 +285,9 @@ export function ShopPage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-muted-foreground">No products found in this category</p>
+                <p className="text-muted-foreground">
+                  No products match your filters
+                </p>
               </div>
             )}
           </div>

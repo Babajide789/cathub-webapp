@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { useCart } from "@/app/context/CartContext";
+import { products } from "@/lib/data";
 
 interface ProductCardProps {
   id: string;
@@ -18,6 +20,8 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ id, name, price, category, image, rating, reviews, inStock }: ProductCardProps) {
+  const { addToCart } = useCart();
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 group">
       <Link href={`/shop/${id}`}>
@@ -51,7 +55,7 @@ export function ProductCard({ id, name, price, category, image, rating, reviews,
             disabled={!inStock}
             onClick={(e) => {
               e.preventDefault();
-              console.log("Add to cart:", id);
+              addToCart(products);
             }}
           >
             <ShoppingCart className="w-4 h-4 mr-2" />
