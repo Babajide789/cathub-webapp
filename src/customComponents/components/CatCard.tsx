@@ -4,8 +4,10 @@ import Link from "next/link";
 import { MapPin, Heart } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 
-interface CatCardProps {
+
+export interface CatCardProps {
   id: string;
   name: string;
   age: string;
@@ -20,7 +22,7 @@ export function CatCard({ id, name, age, breed, location, image, gender }: CatCa
     <Link href={`/adopt/${id}`}>
       <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 group cursor-pointer">
         <div className="relative aspect-square overflow-hidden">
-          <img
+          <Image
             src={image}
             alt={name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

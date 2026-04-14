@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useCart } from "@/app/context/CartContext";
-import { products } from "@/lib/data";
+import Image from "next/image";
+import { mapProductToCart } from "@/lib/adapters/productAdapter";
 
 interface ProductCardProps {
   id: string;
@@ -26,10 +27,12 @@ export function ProductCard({ id, name, price, category, image, rating, reviews,
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 group">
       <Link href={`/shop/${id}`}>
         <div className="relative aspect-square overflow-hidden bg-gray-50">
-          <img
+          <Image
             src={image}
             alt={name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            width={400}
+            height={350}
           />
           {!inStock && (
             <Badge className="absolute top-3 right-3 bg-destructive text-destructive-foreground">
@@ -55,12 +58,24 @@ export function ProductCard({ id, name, price, category, image, rating, reviews,
             disabled={!inStock}
             onClick={(e) => {
               e.preventDefault();
-              addToCart(products);
+
+              addToCart(
+                mapProductToCart({
+                  id,
+                  name,
+                  price,
+                  image,
+                  category,
+                  rating,
+                  reviews,
+                  inStock,
+                })
+              );
             }}
           >
-            <ShoppingCart className="w-4 h-4 mr-2" />
-            Add
-          </Button>
+  <ShoppingCart className="w-4 h-4 mr-2" />
+  Add
+</Button>
         </div>
       </div>
     </Card>

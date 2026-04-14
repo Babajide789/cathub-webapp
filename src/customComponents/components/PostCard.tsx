@@ -1,16 +1,9 @@
 import { Heart, MessageCircle, Share2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { PostCardProps } from "@/types/ui";
+import Image from "next/image";
 
-interface PostCardProps {
-  userName: string;
-  userAvatar: string;
-  image: string;
-  caption: string;
-  likes: number;
-  comments: number;
-  timestamp: string;
-}
 
 export function PostCard({ userName, userAvatar, image, caption, likes, comments, timestamp }: PostCardProps) {
   return (
@@ -26,7 +19,7 @@ export function PostCard({ userName, userAvatar, image, caption, likes, comments
         </div>
       </div>
       <div className="aspect-square bg-gray-50">
-        <img
+        <Image
           src={image}
           alt="Post"
           className="w-full h-full object-cover"
