@@ -40,16 +40,24 @@ export interface Service {
   phone: string;
   image: string;
   description: string;
+  
 }
 
 export interface Post {
   id: string;
-  userId: string;
-  userName: string;
-  userAvatar: string;
-  image: string;
-  caption: string;
+
+  user: {
+    name: string;
+    avatar: string;
+  };
+
+  content: string;
+
+  image?: string;
+
+  createdAt: string;
+
   likes: number;
+
   comments: number;
-  timestamp: string;
 }

@@ -2,7 +2,7 @@ import { MapPin, Phone, Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
+import Image from "next/image";
 interface ServiceCardProps {
   name: string;
   type: "vet" | "grooming" | "boarding";
@@ -30,10 +30,12 @@ export function ServiceCard({ name, type, rating, distance, address, phone, imag
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="md:flex">
         <div className="md:w-48 aspect-video md:aspect-square overflow-hidden bg-gray-50">
-          <img
+          <Image
             src={image}
             alt={name}
             className="w-full h-full object-cover"
+            width={400}
+            height={350}
           />
         </div>
         <div className="p-4 flex-1">

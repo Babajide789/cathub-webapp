@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Filter, Grid, List } from "lucide-react";
 import { CatCard } from "../components/CatCard";
@@ -23,6 +23,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { getCats } from "@/lib/api/cats";
+import type { CatsResponse } from "@/types/cats";
+import type { Cat } from "@/types/cats";
+import { mapCatToCatCard } from "@/lib/adapters/catAdapter";
 
 export function AdoptPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -46,12 +49,19 @@ export function AdoptPage() {
   }, [search]);
 
   // 🔁 Reset page when filters change
-  useEffect(() => {
+  const filterKey = `${debouncedSearch}-${breed}-${age}-${gender}`;
+
+const prevFilterKey = useRef(filterKey);
+
+useEffect(() => {
+  if (prevFilterKey.current !== filterKey) {
     setPage(1);
-  }, [debouncedSearch, breed, age, gender]);
+    prevFilterKey.current = filterKey;
+  }
+}, [filterKey]);
 
   // 🚀 React Query
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<CatsResponse>({
     queryKey: ["cats", page, debouncedSearch, breed, age, gender],
     queryFn: () =>
       getCats({
@@ -61,11 +71,11 @@ export function AdoptPage() {
         age,
         gender,
       }),
-    keepPreviousData: true,
+    placeholderData: (prev) => prev,
   });
 
-  const cats = data?.cats || [];
-  const totalPages = data?.totalPages || 1;
+  const cats = data?.cats ?? [];
+  const totalPages = data?.totalPages ?? 1;
 
   // Pagination logic
   const getPaginationRange = () => {
@@ -273,8 +283,8 @@ export function AdoptPage() {
                     : "space-y-4"
                 }
               >
-                {cats.map((cat) => (
-                  <CatCard key={cat.id} {...cat} />
+                {cats.map((cat: Cat) => (
+                  <CatCard key={cat.id} {...mapCatToCatCard(cat)} />
                 ))}
               </div>
             )}

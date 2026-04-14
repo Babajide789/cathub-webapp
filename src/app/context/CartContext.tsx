@@ -1,16 +1,25 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import type { CartProduct } from "@/types/cart";
+
+type Product = {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+};
+
 
 type CartItem = {
   productId: string;
   quantity: number;
-  product: any;
+  product: CartProduct;
 };
 
 type CartContextType = {
   cart: CartItem[];
-  addToCart: (product: any) => void;
+  addToCart: (product: CartProduct) => void;
   updateQuantity: (productId: string, delta: number) => void;
   removeItem: (productId: string) => void;
   clearCart: () => void;
@@ -19,20 +28,19 @@ type CartContextType = {
 const CartContext = createContext<CartContextType | null>(null);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+  if (typeof window === "undefined") return [];
 
-  // ✅ Load from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem("cart");
-    if (stored) setCart(JSON.parse(stored));
-  }, []);
+  const stored = localStorage.getItem("cart");
+  return stored ? JSON.parse(stored) : [];
+});
 
   // ✅ Save to localStorage
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product: any) => {
+  const addToCart = (product: Product) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.productId === product.id);
 

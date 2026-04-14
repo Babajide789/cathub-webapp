@@ -244,36 +244,38 @@ export const services: Service[] = [
 export const posts: Post[] = [
   {
     id: "1",
-    userId: "1",
-    userName: "Jessica Smith",
-    userAvatar: "https://ui-avatars.com/api/?name=Jessica+Smith",
+    user: {
+      name: "Jessica Smith",
+      avatar: "https://ui-avatars.com/api/?name=Jessica+Smith",
+    },
     image: "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=800",
-    caption: "My Luna enjoying her favorite spot ☀️",
+    content: "My Luna enjoying her favorite spot ☀️",
     likes: 234,
     comments: 18,
-    timestamp: "2 hours ago"
+    createdAt: "2 hours ago",
   },
   {
     id: "2",
-    userId: "2",
-    userName: "David Lee",
-    userAvatar: "https://ui-avatars.com/api/?name=David+Lee",
+    user: {
+      name: "David Lee",
+      avatar: "https://ui-avatars.com/api/?name=David+Lee",
+    },
     image: "https://images.unsplash.com/photo-1606214174585-fe31582dc6ee?w=800",
-    caption: "Milo's first adventure in the garden! He loved it 🌿",
+    content: "Milo's first adventure in the garden! He loved it 🌿",
     likes: 189,
     comments: 12,
-    timestamp: "5 hours ago"
+    createdAt: "5 hours ago",
   },
   {
     id: "3",
-    userId: "3",
-    userName: "Amanda Chen",
-    userAvatar: "https://ui-avatars.com/api/?name=Amanda+Chen",
+    user: {
+      name: "Amanda Chen",
+      avatar: "https://ui-avatars.com/api/?name=Amanda+Chen",
+    },
     image: "https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=800",
-    caption: "Lazy Sunday with this beautiful girl 💕",
+    content: "Lazy Sunday with this beautiful girl 💕",
     likes: 312,
     comments: 24,
-    timestamp: "1 day ago"
-  }
-  // 👉 rest here
+    createdAt: "1 day ago",
+  },
 ];
