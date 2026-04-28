@@ -25,7 +25,8 @@ export function CatCard({ id, name, age, breed, location, image, gender }: CatCa
           <Image
             src={image}
             alt={name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            fill
           />
           <button
             className="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white transition-colors"

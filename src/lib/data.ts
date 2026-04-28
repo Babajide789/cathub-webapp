@@ -120,7 +120,6 @@ export const cats: Cat[] = [
       "https://images.unsplash.com/photo-1598188306155-25e400eb5078?w=800"
     ]
   }
-  // 👉 paste ALL other cats here
 ];
 
 export const products: Product[] = [
@@ -190,7 +189,6 @@ export const products: Product[] = [
     description: "Complete grooming kit with brush, nail clippers, and comb. Perfect for maintaining your cat's coat.",
     inStock: false
   }
-  // 👉 paste ALL products here
 ];
 
 export const services: Service[] = [
@@ -238,7 +236,6 @@ export const services: Service[] = [
     image: "https://images.unsplash.com/photo-1628276877524-7f0ab45d5b30?w=800",
     description: "State-of-the-art animal hospital with specialists in feline medicine and surgery."
   }
-  // 👉 rest here
 ];
 
 export const posts: Post[] = [
