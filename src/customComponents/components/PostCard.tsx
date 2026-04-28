@@ -18,11 +18,12 @@ export function PostCard({ userName, userAvatar, image, caption, likes, comments
           <p className="text-sm text-muted-foreground">{timestamp}</p>
         </div>
       </div>
-      <div className="aspect-square bg-gray-50">
+      <div className="relative aspect-square bg-gray-50">
         <Image
           src={image}
           alt="Post"
-          className="w-full h-full object-cover"
+          className="object-cover"
+          fill
         />
       </div>
       <div className="p-4">
