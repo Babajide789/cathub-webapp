@@ -20,7 +20,6 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 
-
 export default function MessagesPage() {
   const [selectedId, setSelectedId] = useState("1");
   const [search, setSearch] = useState("");
@@ -31,7 +30,6 @@ export default function MessagesPage() {
 
   const queryClient = useQueryClient();
 
-  /* ================= CONVERSATIONS ================= */
 /* ================= CONVERSATIONS ================= */
 const { data: conversations = [] } =
   useQuery<Conversation[]>({

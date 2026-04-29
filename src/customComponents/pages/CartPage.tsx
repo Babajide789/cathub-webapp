@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { mockProducts, mockCartItems } from "../data/mockData";
 import Link from "next/link";
+import Image from "next/image";
 
 export function CartPage() {
   const [cartItems, setCartItems] = useState(
@@ -80,7 +81,7 @@ export function CartPage() {
                 <div className="flex gap-4">
                   <Link href={`/shop/${item.productId}`} className="shrink-0">
                     <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100">
-                      <img
+                      <Image
                         src={item.product.image}
                         alt={item.product.name}
                         className="w-full h-full object-cover"

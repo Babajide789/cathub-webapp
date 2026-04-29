@@ -19,7 +19,7 @@ export function CommunityPage() {
 
   const queryClient = useQueryClient();
 
-  // 🚀 Typed Query (FIXED)
+  // Typed Query (FIXED)
   const { data, isLoading } = useQuery<PostsResponse>({
     queryKey: ["posts", page],
     queryFn: () => getPosts({ page }),
@@ -28,7 +28,7 @@ export function CommunityPage() {
   const posts: Post[] = data?.posts ?? [];
   const nextPage = data?.nextPage ?? null;
 
-  // 🚀 Mutation
+  // Mutation
   const mutation = useMutation({
     mutationFn: (newPost: string) => createPost(newPost),
     onSuccess: () => {

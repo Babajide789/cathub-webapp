@@ -7,6 +7,7 @@ import { ProductCard } from "../components/ProductCard";
 import { Separator } from "@/components/ui/separator";
 import { mockCats, mockProducts } from "../data/mockData";
 import { CatCard } from "../components/CatCard";
+import Image from "next/image";
 
 export function ProfilePage() {
   const userListings = mockCats.slice(0, 2);
@@ -125,7 +126,7 @@ export function ProfilePage() {
                 <Card key={product.id} className="p-4">
                   <div className="flex gap-4">
                     <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-                      <img
+                      <Image
                         src={product.image}
                         alt={product.name}
                         className="w-full h-full object-cover"

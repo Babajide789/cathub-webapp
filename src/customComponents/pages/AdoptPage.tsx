@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Filter, Grid, List } from "lucide-react";
 import { CatCard } from "../components/CatCard";
@@ -23,8 +23,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { getCats } from "@/lib/api/cats";
-import type { CatsResponse } from "@/types/cats";
-import type { Cat } from "@/types/cats";
+import type { CatsResponse, Cat } from "@/types/cats";
 import { mapCatToCatCard } from "@/lib/adapters/catAdapter";
 
 export function AdoptPage() {
@@ -37,7 +36,7 @@ export function AdoptPage() {
   const [gender, setGender] = useState("all");
   const [page, setPage] = useState(1);
 
-  // 🔥 Debounce
+  // Debounce
   const [debouncedSearch, setDebouncedSearch] = useState(search);
 
   useEffect(() => {
@@ -48,19 +47,7 @@ export function AdoptPage() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // 🔁 Reset page when filters change
-  const filterKey = `${debouncedSearch}-${breed}-${age}-${gender}`;
-
-const prevFilterKey = useRef(filterKey);
-
-useEffect(() => {
-  if (prevFilterKey.current !== filterKey) {
-    setPage(1);
-    prevFilterKey.current = filterKey;
-  }
-}, [filterKey]);
-
-  // 🚀 React Query
+  // React Query
   const { data, isLoading } = useQuery<CatsResponse>({
     queryKey: ["cats", page, debouncedSearch, breed, age, gender],
     queryFn: () =>
@@ -121,7 +108,10 @@ useEffect(() => {
                   <Label>Search</Label>
                   <Input
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      setPage(1);
+                    }}
                     className="mt-2"
                   />
                 </div>
@@ -129,10 +119,16 @@ useEffect(() => {
                 {/* Breed */}
                 <div>
                   <Label>Breed</Label>
-                  <Select onValueChange={setBreed}>
+                  <Select
+                    onValueChange={(value) => {
+                      setBreed(value);
+                      setPage(1);
+                    }}
+                  >
                     <SelectTrigger className="mt-2">
                       <SelectValue placeholder="All breeds" />
                     </SelectTrigger>
+
                     <SelectContent>
                       <SelectItem value="all">All breeds</SelectItem>
                       <SelectItem value="persian">Persian</SelectItem>
@@ -148,10 +144,16 @@ useEffect(() => {
                 {/* Age */}
                 <div>
                   <Label>Age</Label>
-                  <Select onValueChange={setAge}>
+                  <Select
+                    onValueChange={(value) => {
+                      setAge(value);
+                      setPage(1);
+                    }}
+                  >
                     <SelectTrigger className="mt-2">
                       <SelectValue placeholder="Any age" />
                     </SelectTrigger>
+
                     <SelectContent>
                       <SelectItem value="all">Any age</SelectItem>
                       <SelectItem value="kitten">Kitten</SelectItem>
@@ -165,10 +167,16 @@ useEffect(() => {
                 {/* Gender */}
                 <div>
                   <Label>Gender</Label>
-                  <Select onValueChange={setGender}>
+                  <Select
+                    onValueChange={(value) => {
+                      setGender(value);
+                      setPage(1);
+                    }}
+                  >
                     <SelectTrigger className="mt-2">
                       <SelectValue placeholder="Any gender" />
                     </SelectTrigger>
+                    
                     <SelectContent>
                       <SelectItem value="all">Any gender</SelectItem>
                       <SelectItem value="male">Male</SelectItem>
@@ -177,7 +185,7 @@ useEffect(() => {
                   </Select>
                 </div>
 
-                {/* Distance (UI only for now) */}
+                {/* Distance */}
                 <div>
                   <Label className="mb-3 block">Distance (miles)</Label>
                   <Slider defaultValue={[25]} max={100} step={5} />
@@ -192,6 +200,7 @@ useEffect(() => {
                     setBreed("all");
                     setAge("all");
                     setGender("all");
+                    setPage(1);
                   }}
                 >
                   Reset
@@ -205,7 +214,6 @@ useEffect(() => {
             {/* Toolbar */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                {/* Mobile Filters */}
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button variant="outline" className="md:hidden">
@@ -223,10 +231,18 @@ useEffect(() => {
                       <Input
                         placeholder="Search..."
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={(e) => {
+                          setSearch(e.target.value);
+                          setPage(1);
+                        }}
                       />
 
-                      <Select onValueChange={setBreed}>
+                      <Select
+                        onValueChange={(value) => {
+                          setBreed(value);
+                          setPage(1);
+                        }}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Breed" />
                         </SelectTrigger>
@@ -241,7 +257,6 @@ useEffect(() => {
                 </Sheet>
               </div>
 
-              {/* View Toggle */}
               <div className="hidden md:flex items-center gap-2">
                 <Button
                   variant={viewMode === "grid" ? "default" : "outline"}
@@ -272,9 +287,7 @@ useEffect(() => {
                 ))}
               </div>
             ) : cats.length === 0 ? (
-              <div className="text-center py-10">
-                No cats found 😿
-              </div>
+              <div className="text-center py-10">No cats found 😿</div>
             ) : (
               <div
                 className={

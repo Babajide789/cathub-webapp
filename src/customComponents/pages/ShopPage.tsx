@@ -31,7 +31,7 @@ export function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ FILTER STATES
+  // FILTER STATES
   const [search, setSearch] = useState("");
   const [priceRange, setPriceRange] = useState("all");
   const [rating, setRating] = useState("all");
@@ -53,7 +53,7 @@ export function ShopPage() {
     fetchData();
   }, []);
 
-  // ✅ FULL FILTER + SORT LOGIC
+  // FULL FILTER + SORT LOGIC
   const filteredProducts = products
     .filter((p) => {
       if (

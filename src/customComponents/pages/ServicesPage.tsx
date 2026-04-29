@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// ✅ IMPORT TYPES
+// IMPORT TYPES
 import {
   getServices,
   type GetServicesResponse,
@@ -41,7 +41,7 @@ export function ServicesPage() {
     return () => clearTimeout(timer);
   }, [location]);
 
-  // 🚀 React Query (✅ TYPED)
+  // React Query (✅ TYPED)
   const { data, isLoading } = useQuery<GetServicesResponse>({
     queryKey: ["services", page, debouncedLocation, selectedType, distance],
     queryFn: () =>

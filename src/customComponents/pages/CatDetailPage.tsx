@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockCats } from "../data/mockData";
+import Image from "next/image";
 
 export function CatDetailPage() {
   const params = useParams();
@@ -51,7 +52,7 @@ export function CatDetailPage() {
             {/* Image Gallery */}
             <div>
               <div className="aspect-square md:aspect-video rounded-xl overflow-hidden bg-gray-100 mb-4">
-                <img
+                <Image
                   src={cat.gallery[selectedImage]}
                   alt={cat.name}
                   className="w-full h-full object-cover"
@@ -62,11 +63,11 @@ export function CatDetailPage() {
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                    className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
                       selectedImage === index ? "border-primary" : "border-transparent"
                     }`}
                   >
-                    <img
+                    <Image
                       src={image}
                       alt={`${cat.name} ${index + 1}`}
                       className="w-full h-full object-cover"
@@ -169,7 +170,7 @@ export function CatDetailPage() {
                     <span>{cat.breed}</span>
                   </div>
                   <div className="flex items-start gap-2 text-muted-foreground">
-                    <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
                     <span>{cat.location}</span>
                   </div>
                 </div>

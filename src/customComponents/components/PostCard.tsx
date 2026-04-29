@@ -4,7 +4,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { PostCardProps } from "@/types/ui";
 import Image from "next/image";
 
-
 export function PostCard({ userName, userAvatar, image, caption, likes, comments, timestamp }: PostCardProps) {
   return (
     <Card className="overflow-hidden">
