@@ -1,7 +1,5 @@
-// src/app/api/cats/route.ts
-
 import { NextResponse } from "next/server";
-import { cats } from "@/lib/data"; // ← your moved mock data
+import { cats } from "@/lib/data";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -16,24 +14,24 @@ export async function GET(req: Request) {
 
   let filtered = [...cats];
 
-  // 🔍 Search
+  // Search
   if (search) {
     filtered = filtered.filter((cat) =>
       cat.name.toLowerCase().includes(search)
     );
   }
 
-  // 🐱 Breed
+  // Breed
   if (breed && breed !== "all") {
     filtered = filtered.filter((cat) => cat.breed === breed);
   }
 
-  // 🎂 Age
+  // Age
   if (age && age !== "all") {
     filtered = filtered.filter((cat) => cat.age === age);
   }
 
-  // ⚧ Gender
+  // Gender
   if (gender && gender !== "all") {
     filtered = filtered.filter((cat) => cat.gender === gender);
   }

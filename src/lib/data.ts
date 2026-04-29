@@ -1,5 +1,3 @@
-// /lib/data.ts
-
 import { Cat, Product, Service, Post } from "@/types";
 
 export const cats: Cat[] = [

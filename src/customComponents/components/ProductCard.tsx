@@ -73,9 +73,9 @@ export function ProductCard({ id, name, price, category, image, rating, reviews,
               );
             }}
           >
-  <ShoppingCart className="w-4 h-4 mr-2" />
-  Add
-</Button>
+          <ShoppingCart className="w-4 h-4 mr-2" />
+          Add
+        </Button>
         </div>
       </div>
     </Card>

@@ -1,5 +1,3 @@
-// src/lib/api/posts.ts
-
 export interface GetPostsParams {
   page?: number;
 }

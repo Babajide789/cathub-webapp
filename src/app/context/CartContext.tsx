@@ -10,7 +10,6 @@ type Product = {
   image: string;
 };
 
-
 type CartItem = {
   productId: string;
   quantity: number;
@@ -35,7 +34,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   return stored ? JSON.parse(stored) : [];
 });
 
-  // ✅ Save to localStorage
+  // Save to localStorage
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);

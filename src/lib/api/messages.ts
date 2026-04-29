@@ -6,7 +6,7 @@ import type {
 
 /* Conversations */
 export async function getConversations(): Promise<Conversation[]> {
-  const res = await fetch("/api/messages/conversations");
+  const res = await fetch("/api/conversations");
 
   if (!res.ok) {
     throw new Error("Failed to fetch conversations");
@@ -20,7 +20,7 @@ export async function getMessages(
   conversationId: string
 ): Promise<Message[]> {
   const res = await fetch(
-    `/api/messages/${conversationId}`
+    `/api/messages?conversationId=${conversationId}`
   );
 
   if (!res.ok) {
@@ -34,7 +34,7 @@ export async function getMessages(
 export async function sendMessage(
   payload: SendMessagePayload
 ) {
-  const res = await fetch("/api/messages/send", {
+  const res = await fetch("/api/messages", {
     method: "POST",
     body: JSON.stringify(payload),
     headers: {

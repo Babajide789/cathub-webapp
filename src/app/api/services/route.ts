@@ -1,5 +1,3 @@
-// /app/api/services/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import { services } from "@/lib/data";
 
@@ -13,19 +11,19 @@ export async function GET(req: NextRequest) {
 
   let filtered = [...services];
 
-  // 🔍 Filter by type
+  // Filter by type
   if (type && type !== "all") {
     filtered = filtered.filter((s) => s.type === type);
   }
 
-  // 🔍 Filter by location (simple contains)
+  // Filter by location (simple contains)
   if (location) {
     filtered = filtered.filter((s) =>
-      s.location.toLowerCase().includes(location.toLowerCase())
+      s.address.toLowerCase().includes(location.toLowerCase())
     );
   }
 
-  // 🔍 Fake distance filter (for now)
+  // Fake distance filter (for now)
   if (distance) {
     filtered = filtered.map((s) => ({
       ...s,
@@ -38,7 +36,7 @@ export async function GET(req: NextRequest) {
     }));
   }
 
-  // 📄 Pagination
+  // Pagination
   const pageSize = 6;
   const start = (page - 1) * pageSize;
   const paginated = filtered.slice(start, start + pageSize);

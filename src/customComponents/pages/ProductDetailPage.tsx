@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductCard } from "../components/ProductCard";
 import { mockProducts } from "../data/mockData";
+import Image from "next/image";
 
 export function ProductDetailPage() {
   const params = useParams();
@@ -51,7 +52,7 @@ export function ProductDetailPage() {
           {/* Left Column - Image */}
           <div>
             <div className="aspect-square rounded-xl overflow-hidden bg-gray-100 mb-4">
-              <img
+              <Image
                 src={product.image}
                 alt={product.name}
                 className="w-full h-full object-cover"
