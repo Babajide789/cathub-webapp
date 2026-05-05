@@ -20,6 +20,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
+import { useSession } from "next-auth/react";
 
 const navItems = [
   { path: "/", label: "Home", icon: Home },
@@ -31,6 +32,8 @@ const navItems = [
 
 export function Header() {
   const pathname = usePathname();
+
+  const { data: session } = useSession();
 
   return (
     <>
@@ -98,12 +101,24 @@ export function Header() {
                   </Button>
                 </Link>
 
-                <Link href="/profile">
-                  <Avatar className="w-8 h-8 cursor-pointer hover:ring-2 ring-primary transition-all">
-                    <AvatarImage src="https://ui-avatars.com/api/?name=John+Doe" />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
-                </Link>
+                {session ? (
+                  <Link href="/profile">
+                    <Avatar className="w-8 h-8 cursor-pointer hover:ring-2 ring-primary transition-all">
+                      <AvatarImage
+                        src={`https://ui-avatars.com/api/?name=${session.user?.email}`}
+                      />
+                      <AvatarFallback>
+                        {session.user?.email?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Link>
+                ) : (
+                  <Link href="/auth/signin">
+                    <Button variant="outline" size="sm">
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
