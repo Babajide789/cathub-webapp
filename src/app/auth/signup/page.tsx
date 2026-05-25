@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 export default function SignUpPage() {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,63 +30,83 @@ export default function SignUpPage() {
       return;
     }
 
-    // Account created — now sign them in automatically
-    const { signIn } = await import("next-auth/react");
-    await signIn("credentials", {
+    // Sign in then hard-redirect — middleware will send to /onboarding/step-1
+    // because hasOnboarded is false on new accounts
+    const result = await signIn("credentials", {
       email,
       password,
-      redirect: true,
-      callbackUrl: "/",
+      redirect: false,
     });
+
+    if (result?.error) {
+      setError("Account created but sign in failed. Please sign in manually.");
+      setLoading(false);
+      return;
+    }
+
+    window.location.href = "/onboarding/step-1";
   };
 
   return (
-    <div className="flex h-screen items-center justify-center">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-80">
-        <h1 className="text-xl font-bold">Create Account</h1>
+    <div className="flex h-screen items-center justify-center bg-gray-50">
+      <div className="bg-white rounded-2xl shadow p-8 w-full max-w-sm">
+        <h1 className="text-2xl font-bold mb-1">Create Account</h1>
+        <p className="text-gray-500 text-sm mb-6">Join the CATHUB community</p>
 
         {error && (
-          <p className="text-red-500 text-sm">{error}</p>
+          <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg p-3 mb-4">
+            {error}
+          </div>
         )}
 
-        <input
-          type="text"
-          placeholder="Name"
-          className="border p-2"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div>
+            <label className="text-sm font-medium block mb-1">Name</label>
+            <input
+              type="text"
+              placeholder="Your name"
+              className="border rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-black"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium block mb-1">Email</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              className="border rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-black"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium block mb-1">Password</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              className="border rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-black"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
 
-        <input
-          type="email"
-          placeholder="Email"
-          className="border p-2"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-black text-white p-3 rounded-lg font-medium disabled:opacity-50 mt-2"
+          >
+            {loading ? "Creating account..." : "Create Account"}
+          </button>
+        </form>
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="border p-2"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <button
-          disabled={loading}
-          className="bg-black text-white p-2 disabled:opacity-50"
-        >
-          {loading ? "Creating account..." : "Sign Up"}
-        </button>
-
-        <p className="text-sm text-center">
+        <p className="text-sm text-center mt-4 text-gray-500">
           Already have an account?{" "}
-          <Link href="/auth/signin" className="underline">
+          <Link href="/auth/signin" className="text-black font-medium underline">
             Sign in
           </Link>
         </p>
-      </form>
+      </div>
     </div>
   );
 }
