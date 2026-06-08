@@ -1,4 +1,4 @@
-import { ProfilePage } from "@/customComponents/pages/ProfilePage";
+import ProfilePage from "@/customComponents/pages/ProfilePage";
 
 export default function Profile (){
     return(

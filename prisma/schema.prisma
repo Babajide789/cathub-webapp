@@ -13,6 +13,34 @@ model User {
   email          String   @unique
   password       String
   role           String   @default("USER")
+  image          String?
+  location       String?
+  interests      String[] @default([])
   hasOnboarded   Boolean  @default(false)
   createdAt      DateTime @default(now())
+  cats           Cat[]
+  preferences    UserPreferences?
+}
+
+model Cat {
+  id        String   @id @default(cuid())
+  name      String
+  breed     String?
+  age       Int?
+  image     String?
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([ownerId])
+}
+
+model UserPreferences {
+  id                String  @id @default(cuid())
+  userId            String  @unique
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notifyAdoption    Boolean @default(false)
+  notifyMarketplace Boolean @default(false)
+  notifyMating      Boolean @default(false)
+  notifyVets        Boolean @default(false)
 }

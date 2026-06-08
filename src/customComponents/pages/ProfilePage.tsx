@@ -1,162 +1,252 @@
-import { Settings, MapPin, Calendar, Mail, Phone, Edit } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ProductCard } from "../components/ProductCard";
-import { Separator } from "@/components/ui/separator";
-import { mockCats, mockProducts } from "../data/mockData";
-import { CatCard } from "../components/CatCard";
-import Image from "next/image";
+"use client";
 
-export function ProfilePage() {
-  const userListings = mockCats.slice(0, 2);
-  const savedItems = mockCats.slice(2, 4);
-  const orderHistory = mockProducts.slice(0, 3);
+import { useSession, signOut } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Settings, MapPin, Calendar, Mail, Edit, LogOut, Cat, ShoppingBag, Heart } from "lucide-react";
+
+type UserProfile = {
+  name: string | null;
+  email: string;
+  image: string | null;
+  location: string | null;
+  role: string;
+  interests: string[];
+  createdAt: string;
+  cats: { id: string; name: string; breed: string | null; age: number | null; image: string | null }[];
+};
+
+const ROLE_LABELS: Record<string, string> = {
+  OWNER: "Cat Owner",
+  BUYER: "Buyer",
+  SELLER: "Seller",
+  SERVICE_PROVIDER: "Service Provider",
+  USER: "Member",
+};
+
+const ROLE_COLORS: Record<string, string> = {
+  OWNER: "bg-amber-100 text-amber-800",
+  BUYER: "bg-blue-100 text-blue-800",
+  SELLER: "bg-green-100 text-green-800",
+  SERVICE_PROVIDER: "bg-purple-100 text-purple-800",
+  USER: "bg-gray-100 text-gray-800",
+};
+
+export default function ProfilePage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [activeTab, setActiveTab] = useState<"cats" | "interests" | "orders">("cats");
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/signin");
+      return;
+    }
+    if (status === "authenticated") {
+      fetch("/api/profile")
+        .then((r) => r.json())
+        .then((data) => {
+          setProfile(data);
+          setLoadingProfile(false);
+        })
+        .catch(() => setLoadingProfile(false));
+    }
+  }, [status, router]);
+
+  if (status === "loading" || loadingProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+          <p className="text-gray-400 text-sm">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const initials = profile?.name
+    ? profile.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    : session?.user?.email?.[0].toUpperCase() ?? "U";
+
+  const joinedDate = profile?.createdAt
+    ? new Date(profile.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })
+    : "Recently";
+
+  const roleLabel = ROLE_LABELS[profile?.role ?? "USER"] ?? "Member";
+  const roleColor = ROLE_COLORS[profile?.role ?? "USER"] ?? "bg-gray-100 text-gray-800";
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Profile Header */}
-      <div className="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 py-12 border-b">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-            <Avatar className="w-24 h-24">
-              <AvatarImage src="https://ui-avatars.com/api/?name=John+Doe&size=128" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 text-center md:text-left">
-              <h1 className="mb-2">John Doe</h1>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm text-muted-foreground mb-4">
-                <div className="flex items-center gap-1">
-                  <MapPin className="w-4 h-4" />
-                  <span>San Francisco, CA</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>Joined March 2024</span>
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                <Button>
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit Profile
-                </Button>
-                <Button variant="outline">
-                  <Settings className="w-4 h-4 mr-2" />
-                  Settings
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Header Banner */}
+      <div className="h-32 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 relative">
+        <div className="absolute inset-0 opacity-20"
+          style={{ backgroundImage: "radial-gradient(circle at 20% 50%, #f59e0b 0%, transparent 50%), radial-gradient(circle at 80% 50%, #8b5cf6 0%, transparent 50%)" }} />
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Contact Info */}
-        <Card className="p-6 mb-8">
-          <h3 className="mb-4">Contact Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Mail className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Email</p>
-                <p className="font-medium">john.doe@example.com</p>
-              </div>
+      <div className="container mx-auto px-4 max-w-4xl">
+        {/* Avatar + Info */}
+        <div className="relative -mt-16 mb-6 flex flex-col sm:flex-row sm:items-end gap-4">
+          <div className="w-28 h-28 rounded-2xl border-4 border-white shadow-lg overflow-hidden bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0">
+            {profile?.image ? (
+              <img src={profile.image} alt={profile.name ?? ""} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-white text-3xl font-bold">{initials}</span>
+            )}
+          </div>
+
+          <div className="flex-1 pb-1">
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <h1 className="text-2xl font-bold text-gray-900">{profile?.name ?? "User"}</h1>
+              <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${roleColor}`}>
+                {roleLabel}
+              </span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <Phone className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Phone</p>
-                <p className="font-medium">(415) 555-0123</p>
-              </div>
+            <div className="flex flex-wrap gap-3 text-sm text-gray-500">
+              {profile?.location && (
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5" />
+                  {profile.location}
+                </span>
+              )}
+              <span className="flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5" />
+                Joined {joinedDate}
+              </span>
+              <span className="flex items-center gap-1">
+                <Mail className="w-3.5 h-3.5" />
+                {profile?.email}
+              </span>
             </div>
           </div>
-        </Card>
+
+          <div className="flex gap-2 pb-1">
+            <button
+              onClick={() => router.push("/settings")}
+              className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+            >
+              <Edit className="w-4 h-4" />
+              Edit
+            </button>
+            <button
+              onClick={() => signOut({ callbackUrl: "/auth/signin" })}
+              className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign out
+            </button>
+          </div>
+        </div>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          {[
+            { label: "Cats", value: profile?.cats?.length ?? 0, icon: Cat },
+            { label: "Interests", value: profile?.interests?.length ?? 0, icon: Heart },
+            { label: "Orders", value: 0, icon: ShoppingBag },
+          ].map(({ label, value, icon: Icon }) => (
+            <div key={label} className="bg-white rounded-xl p-4 text-center shadow-sm border border-gray-100">
+              <div className="flex justify-center mb-1">
+                <Icon className="w-5 h-5 text-gray-400" />
+              </div>
+              <p className="text-2xl font-bold text-gray-900">{value}</p>
+              <p className="text-xs text-gray-400">{label}</p>
+            </div>
+          ))}
+        </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="listings">
-          <TabsList className="grid w-full md:w-auto grid-cols-3 mb-8">
-            <TabsTrigger value="listings">My Listings</TabsTrigger>
-            <TabsTrigger value="saved">Saved Items</TabsTrigger>
-            <TabsTrigger value="orders">Order History</TabsTrigger>
-          </TabsList>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="flex border-b border-gray-100">
+            {(["cats", "interests", "orders"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 py-3.5 text-sm font-medium capitalize transition-colors ${
+                  activeTab === tab
+                    ? "text-black border-b-2 border-black"
+                    : "text-gray-400 hover:text-gray-600"
+                }`}
+              >
+                {tab === "cats" ? "My Cats" : tab === "interests" ? "Interests" : "Orders"}
+              </button>
+            ))}
+          </div>
 
-          <TabsContent value="listings">
-            <div className="mb-4 flex items-center justify-between">
-              <h2>My Listings ({userListings.length})</h2>
-              <Button>Post New Listing</Button>
-            </div>
-            {userListings.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {userListings.map((cat) => (
-                  <CatCard key={cat.id} {...cat} />
-                ))}
-              </div>
-            ) : (
-              <Card className="p-12 text-center">
-                <p className="text-muted-foreground mb-4">You haven&apost posted any listings yet</p>
-                <Button>Create Your First Listing</Button>
-              </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="saved">
-            <h2 className="mb-4">Saved Items ({savedItems.length})</h2>
-            {savedItems.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {savedItems.map((cat) => (
-                  <CatCard key={cat.id} {...cat} />
-                ))}
-              </div>
-            ) : (
-              <Card className="p-12 text-center">
-                <p className="text-muted-foreground">You haven&apost saved any items yet</p>
-              </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="orders">
-            <h2 className="mb-4">Order History ({orderHistory.length})</h2>
-            <div className="space-y-4">
-              {orderHistory.map((product) => (
-                <Card key={product.id} className="p-4">
-                  <div className="flex gap-4">
-                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="mb-1">{product.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{product.category}</p>
-                      <div className="flex items-center justify-between">
-                        <p className="font-semibold">${product.price.toFixed(2)}</p>
-                        <Button variant="outline" size="sm">Buy Again</Button>
+          <div className="p-6">
+            {/* Cats Tab */}
+            {activeTab === "cats" && (
+              <div>
+                {profile?.cats && profile.cats.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {profile.cats.map((cat) => (
+                      <div key={cat.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-gradient-to-br from-amber-200 to-orange-300 flex items-center justify-center shrink-0">
+                          {cat.image ? (
+                            <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-2xl">🐱</span>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">{cat.name}</p>
+                          <p className="text-sm text-gray-400">
+                            {[cat.breed, cat.age ? `${cat.age}yr` : null].filter(Boolean).join(" · ") || "No details yet"}
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                  <Separator className="my-4" />
-                  <div className="flex items-center justify-between text-sm">
-                    <div>
-                      <p className="text-muted-foreground">Order placed</p>
-                      <p className="font-medium">March 15, 2026</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Status</p>
-                      <p className="font-medium text-green-600">Delivered</p>
-                    </div>
+                ) : (
+                  <div className="text-center py-10">
+                    <div className="text-5xl mb-3">🐱</div>
+                    <p className="text-gray-500 text-sm mb-4">No cats added yet</p>
+                    <button className="bg-black text-white px-5 py-2 rounded-lg text-sm font-medium">
+                      Add a Cat
+                    </button>
                   </div>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+                )}
+              </div>
+            )}
+
+            {/* Interests Tab */}
+            {activeTab === "interests" && (
+              <div>
+                {profile?.interests && profile.interests.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {profile.interests.map((interest) => (
+                      <span key={interest}
+                        className="px-4 py-2 bg-black text-white rounded-full text-sm font-medium capitalize">
+                        {interest}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-10">
+                    <div className="text-5xl mb-3">💡</div>
+                    <p className="text-gray-500 text-sm">No interests selected</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Orders Tab */}
+            {activeTab === "orders" && (
+              <div className="text-center py-10">
+                <div className="text-5xl mb-3">🛍️</div>
+                <p className="text-gray-500 text-sm mb-4">No orders yet</p>
+                <button
+                  onClick={() => router.push("/marketplace")}
+                  className="bg-black text-white px-5 py-2 rounded-lg text-sm font-medium">
+                  Browse Marketplace
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="h-12" />
       </div>
     </div>
   );
