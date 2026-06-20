@@ -9,22 +9,16 @@ import { saveOnboardingData, loadOnboardingData } from "@/lib/onboarding";
 export default function OnboardingStep3() {
   const router = useRouter();
   const { status } = useSession();
-  const [role, setRole] = useState("");
-  const [catName, setCatName] = useState("");
-  const [catBreed, setCatBreed] = useState("");
-  const [catAge, setCatAge] = useState("");
-  const [catImage, setCatImage] = useState("");
+  const [role] = useState(() => loadOnboardingData().role);
+  const [catName, setCatName] = useState(() => loadOnboardingData().catName);
+  const [catBreed, setCatBreed] = useState(() => loadOnboardingData().catBreed);
+  const [catAge, setCatAge] = useState(() => loadOnboardingData().catAge);
+  const [catImage, setCatImage] = useState(() => loadOnboardingData().catImage);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/signin");
-    const saved = loadOnboardingData();
-    if (!saved.role) { router.push("/onboarding/step-1"); return; }
-    setRole(saved.role);
-    if (saved.catName) setCatName(saved.catName);
-    if (saved.catBreed) setCatBreed(saved.catBreed);
-    if (saved.catAge) setCatAge(saved.catAge);
-    if (saved.catImage) setCatImage(saved.catImage);
-  }, [status, router]);
+    if (!role) router.push("/onboarding/step-1");
+  }, [role, status, router]);
 
   const skipCatStep = role === "BUYER" || role === "SERVICE_PROVIDER";
 
@@ -61,13 +55,13 @@ export default function OnboardingStep3() {
         <div className="bg-gray-50 rounded-xl p-6 text-center">
           <div className="text-4xl mb-3">🐱</div>
           <p className="text-gray-500 text-sm">
-            Cat info isn't required for your role. You can skip this step or add a cat you care about.
+            Cat info isn&apos;t required for your role. You can skip this step or add a cat you care about.
           </p>
         </div>
       ) : (
         <div className="flex flex-col gap-4">
           <div>
-            <label className="text-sm font-medium block mb-1">Cat's Name</label>
+            <label className="text-sm font-medium block mb-1">Cat&apos;s Name</label>
             <input type="text" placeholder="e.g. Whiskers"
               className="border rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-black"
               value={catName} onChange={(e) => setCatName(e.target.value)} />
