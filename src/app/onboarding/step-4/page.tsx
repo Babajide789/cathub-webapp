@@ -16,22 +16,27 @@ const INTERESTS = [
 export default function OnboardingStep4() {
   const router = useRouter();
   const { status } = useSession();
-  const [interests, setInterests] = useState<string[]>([]);
-  const [notifyAdoption, setNotifyAdoption] = useState(false);
-  const [notifyMarketplace, setNotifyMarketplace] = useState(false);
-  const [notifyMating, setNotifyMating] = useState(false);
-  const [notifyVets, setNotifyVets] = useState(false);
+  const [savedRole] = useState(() => loadOnboardingData().role);
+  const [interests, setInterests] = useState<string[]>(
+    () => loadOnboardingData().interests
+  );
+  const [notifyAdoption, setNotifyAdoption] = useState(
+    () => loadOnboardingData().notifyAdoption
+  );
+  const [notifyMarketplace, setNotifyMarketplace] = useState(
+    () => loadOnboardingData().notifyMarketplace
+  );
+  const [notifyMating, setNotifyMating] = useState(
+    () => loadOnboardingData().notifyMating
+  );
+  const [notifyVets, setNotifyVets] = useState(
+    () => loadOnboardingData().notifyVets
+  );
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/signin");
-    const saved = loadOnboardingData();
-    if (!saved.role) { router.push("/onboarding/step-1"); return; }
-    if (saved.interests) setInterests(saved.interests);
-    setNotifyAdoption(saved.notifyAdoption);
-    setNotifyMarketplace(saved.notifyMarketplace);
-    setNotifyMating(saved.notifyMating);
-    setNotifyVets(saved.notifyVets);
-  }, [status, router]);
+    if (!savedRole) router.push("/onboarding/step-1");
+  }, [savedRole, status, router]);
 
   const toggleInterest = (key: string) => {
     setInterests((prev) =>
@@ -60,7 +65,7 @@ export default function OnboardingStep4() {
       <p className="text-gray-500 mb-6">Customise your CATHUB experience</p>
 
       <div className="mb-6">
-        <p className="text-sm font-medium mb-3">I'm interested in:</p>
+        <p className="text-sm font-medium mb-3">I&apos;m interested in:</p>
         <div className="grid grid-cols-2 gap-2">
           {INTERESTS.map((i) => (
             <button key={i.key} type="button" onClick={() => toggleInterest(i.key)}

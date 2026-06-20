@@ -3,7 +3,8 @@
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Settings, MapPin, Calendar, Mail, Edit, LogOut, Cat, ShoppingBag, Heart } from "lucide-react";
+import { MapPin, Calendar, Mail, Edit, LogOut, Cat, ShoppingBag, Heart } from "lucide-react";
+import Image from "next/image";
 
 type UserProfile = {
   name: string | null;
@@ -80,7 +81,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Banner */}
-      <div className="h-32 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 relative">
+      <div className="h-32 bg-linear-to-r from-slate-900 via-slate-800 to-slate-900 relative">
         <div className="absolute inset-0 opacity-20"
           style={{ backgroundImage: "radial-gradient(circle at 20% 50%, #f59e0b 0%, transparent 50%), radial-gradient(circle at 80% 50%, #8b5cf6 0%, transparent 50%)" }} />
       </div>
@@ -88,9 +89,9 @@ export default function ProfilePage() {
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Avatar + Info */}
         <div className="relative -mt-16 mb-6 flex flex-col sm:flex-row sm:items-end gap-4">
-          <div className="w-28 h-28 rounded-2xl border-4 border-white shadow-lg overflow-hidden bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0">
+          <div className="w-28 h-28 rounded-2xl border-4 border-white shadow-lg overflow-hidden bg-linear-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0">
             {profile?.image ? (
-              <img src={profile.image} alt={profile.name ?? ""} className="w-full h-full object-cover" />
+              <Image src={profile.image} alt={profile.name ?? ""} className="w-full h-full object-cover" />
             ) : (
               <span className="text-white text-3xl font-bold">{initials}</span>
             )}
@@ -182,9 +183,9 @@ export default function ProfilePage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {profile.cats.map((cat) => (
                       <div key={cat.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-gradient-to-br from-amber-200 to-orange-300 flex items-center justify-center shrink-0">
+                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-linear-to-br from-amber-200 to-orange-300 flex items-center justify-center shrink-0">
                           {cat.image ? (
-                            <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+                            <Image src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
                           ) : (
                             <span className="text-2xl">🐱</span>
                           )}

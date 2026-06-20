@@ -16,13 +16,11 @@ const ROLES = [
 export default function OnboardingStep1() {
   const router = useRouter();
   const { status } = useSession();
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState(() => loadOnboardingData().role);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/signin");
-    const saved = loadOnboardingData();
-    if (saved.role) setRole(saved.role);
   }, [status, router]);
 
   const handleContinue = () => {

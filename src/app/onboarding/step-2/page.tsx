@@ -9,17 +9,17 @@ import { saveOnboardingData, loadOnboardingData } from "@/lib/onboarding";
 export default function OnboardingStep2() {
   const router = useRouter();
   const { status } = useSession();
-  const [location, setLocation] = useState("");
-  const [image, setImage] = useState("");
+  const [savedRole] = useState(() => loadOnboardingData().role);
+  const [location, setLocation] = useState(
+    () => loadOnboardingData().location
+  );
+  const [image, setImage] = useState(() => loadOnboardingData().image);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/signin");
-    const saved = loadOnboardingData();
-    if (!saved.role) router.push("/onboarding/step-1");
-    if (saved.location) setLocation(saved.location);
-    if (saved.image) setImage(saved.image);
-  }, [status, router]);
+    if (!savedRole) router.push("/onboarding/step-1");
+  }, [savedRole, status, router]);
 
   const handleContinue = () => {
     if (!location.trim()) { setError("Please enter your location"); return; }

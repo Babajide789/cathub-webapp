@@ -15,23 +15,23 @@ const ROLE_LABELS: Record<string, string> = {
 
 export default function OnboardingSummary() {
   const router = useRouter();
-  const { data: session, status, update } = useSession();
+  const { status, update } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [data, setData] = useState<OnboardingData | null>(null);
+  const [data] = useState<OnboardingData | null>(() => {
+    const saved = loadOnboardingData();
+    return saved.role ? saved : null;
+  });
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/auth/signin");
       return;
     }
-    const saved = loadOnboardingData();
-    if (!saved.role) {
+    if (!data?.role) {
       router.push("/onboarding/step-1");
-      return;
     }
-    setData(saved);
-  }, [status, router]);
+  }, [data?.role, status, router]);
 
   const handleSubmit = async () => {
   if (!data) return;

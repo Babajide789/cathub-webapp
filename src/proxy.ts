@@ -2,7 +2,7 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
 export default withAuth(
-  function middleware(req) {
+  function proxy(req) {
     const token = req.nextauth.token;
     const pathname = req.nextUrl.pathname;
 
@@ -10,13 +10,17 @@ export default withAuth(
     const isAuthRoute = pathname.startsWith("/auth");
     const isApiRoute = pathname.startsWith("/api");
 
-    // Already onboarded — don't let them back into onboarding
     if (token?.hasOnboarded && isOnboardingRoute) {
       return NextResponse.redirect(new URL("/profile", req.url));
     }
 
-    // Signed in but not onboarded — push to onboarding
-    if (token && !token.hasOnboarded && !isOnboardingRoute && !isAuthRoute && !isApiRoute) {
+    if (
+      token &&
+      !token.hasOnboarded &&
+      !isOnboardingRoute &&
+      !isAuthRoute &&
+      !isApiRoute
+    ) {
       return NextResponse.redirect(new URL("/onboarding/step-1", req.url));
     }
 
@@ -31,7 +35,7 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    "/profile",  
+    "/profile",
     "/onboarding/:path*",
     "/checkout/:path*",
     "/listing/new/:path*",
