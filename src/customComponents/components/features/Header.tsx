@@ -34,11 +34,14 @@ export function Header() {
   const pathname = usePathname();
 
   const { data: session } = useSession();
+  const isSignedIn = Boolean(session?.user);
+  const userEmail = session?.user?.email;
+  const userInitial = userEmail?.charAt(0).toUpperCase();
 
   return (
     <>
       {/* Desktop Navbar */}
-      <nav className="hidden md:block sticky top-0 z-50 bg-white border-b">
+      <nav className="sticky top-0 z-50 hidden border-b bg-white lg:block">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -83,41 +86,47 @@ export function Header() {
                 );
               })}
 
-              {/* Actions */}
               <div className="flex items-center gap-3 ml-2 pl-6 border-l">
-                <Link href="/messages">
-                  <Button variant="ghost" size="icon" className="relative">
-                    <MessageSquare className="w-5 h-5" />
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-                  </Button>
-                </Link>
+                {isSignedIn ? (
+                  <>
+                    <Link href="/messages" aria-label="Messages">
+                      <Button variant="ghost" size="icon" className="relative">
+                        <MessageSquare className="w-5 h-5" />
+                        <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                      </Button>
+                    </Link>
 
-                <Link href="/cart">
-                  <Button variant="ghost" size="icon" className="relative">
-                    <ShoppingCart className="w-5 h-5" />
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                      3
-                    </span>
-                  </Button>
-                </Link>
+                    <Link href="/cart" aria-label="Cart">
+                      <Button variant="ghost" size="icon" className="relative">
+                        <ShoppingCart className="w-5 h-5" />
+                        <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                          3
+                        </span>
+                      </Button>
+                    </Link>
 
-                {session ? (
-                  <Link href="/profile">
-                    <Avatar className="w-8 h-8 cursor-pointer hover:ring-2 ring-primary transition-all">
-                      <AvatarImage
-                        src={`https://ui-avatars.com/api/?name=${session.user?.email}`}
-                      />
-                      <AvatarFallback>
-                        {session.user?.email?.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Link>
+                    <Link href="/profile" aria-label="Profile">
+                      <Avatar className="w-8 h-8 cursor-pointer hover:ring-2 ring-primary transition-all">
+                        <AvatarImage
+                          src={`https://ui-avatars.com/api/?name=${userEmail}`}
+                        />
+                        <AvatarFallback>
+                          {userInitial}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
+                  </>
                 ) : (
-                  <Link href="/auth/signin">
-                    <Button variant="outline" size="sm">
-                      Sign In
-                    </Button>
-                  </Link>
+                  <>
+                    <Link href="/auth/signin">
+                      <Button variant="ghost" size="sm">
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link href="/auth/signup">
+                      <Button size="sm">Sign Up</Button>
+                    </Link>
+                  </>
                 )}
               </div>
             </div>
@@ -126,37 +135,63 @@ export function Header() {
       </nav>
 
       {/* Mobile Header */}
-      <header className="md:hidden sticky top-0 z-50 bg-white border-b">
-        <div className="flex items-center justify-between px-4 h-14">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
+      <header className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur lg:hidden">
+        <div className="flex h-14 items-center justify-between gap-3 px-3">
+          <Link href="/" className="flex min-w-0 items-center gap-2">
+            <div className="w-8 h-8 bg-primary rounded-lg flex shrink-0 items-center justify-center">
               <Heart className="w-4 h-4 text-primary-foreground fill-current" />
             </div>
-            <span className="font-semibold">CatHub</span>
+            <span className="font-semibold truncate">CatHub</span>
           </Link>
 
-          <div className="flex items-center gap-2">
-            <Link href="/messages">
-              <Button variant="ghost" size="icon" className="relative h-9 w-9">
-                <MessageSquare className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
-              </Button>
-            </Link>
+          {isSignedIn ? (
+            <div className="flex shrink-0 items-center gap-1.5">
+              <Link href="/messages" aria-label="Messages">
+                <Button variant="ghost" size="icon" className="relative h-9 w-9">
+                  <MessageSquare className="w-5 h-5" />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+                </Button>
+              </Link>
 
-            <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative h-9 w-9">
-                <ShoppingCart className="w-5 h-5" />
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                  3
-                </span>
-              </Button>
-            </Link>
-          </div>
+              <Link href="/cart" aria-label="Cart">
+                <Button variant="ghost" size="icon" className="relative h-9 w-9">
+                  <ShoppingCart className="w-5 h-5" />
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                    3
+                  </span>
+                </Button>
+              </Link>
+
+              <Link href="/profile" aria-label="Profile">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage
+                    src={`https://ui-avatars.com/api/?name=${userEmail}`}
+                  />
+                  <AvatarFallback>
+                    {userInitial}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
+            </div>
+          ) : (
+            <div className="flex shrink-0 items-center gap-2">
+              <Link href="/auth/signin">
+                <Button variant="outline" size="sm" className="h-9 px-3 text-xs">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/auth/signup">
+                <Button size="sm" className="h-9 px-3 text-xs">
+                  Sign Up
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </header>
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-50">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
         <div className="flex items-center justify-around h-16">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -168,7 +203,7 @@ export function Header() {
               <Link
                 key={item.path}
                 href={item.path}
-                className="flex flex-col items-center justify-center flex-1 h-full"
+                className="flex flex-col items-center justify-center flex-1 h-full min-w-0 px-1"
               >
                 <Icon
                   className={`w-5 h-5 mb-1 ${
@@ -176,7 +211,7 @@ export function Header() {
                   }`}
                 />
                 <span
-                  className={`text-xs ${
+                  className={`max-w-full truncate text-[11px] ${
                     isActive
                       ? "text-primary font-medium"
                       : "text-muted-foreground"

@@ -34,7 +34,9 @@ export default function RootLayout({
         <Providers>
           <CartProvider>
             <Header/>
-            {children}
+            <main className="flex-1 pb-20 lg:pb-0">
+              {children}
+            </main>
           </CartProvider>
         </Providers>
       </body>
