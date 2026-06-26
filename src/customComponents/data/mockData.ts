@@ -13,6 +13,7 @@ export interface Cat {
   ownerName: string;
   ownerAvatar: string;
   ownerType: "individual" | "shelter";
+  ownerPhone: string;
   gallery: string[];
 }
 
@@ -68,6 +69,7 @@ export const mockCats: Cat[] = [
     ownerName: "Paws Rescue Center",
     ownerAvatar: "https://ui-avatars.com/api/?name=Paws+Rescue",
     ownerType: "shelter",
+    ownerPhone: "(415) 555-0198",
     gallery: [
       "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=800",
       "https://images.unsplash.com/photo-1568152950566-c1bf43f4ab28?w=800",
@@ -89,6 +91,7 @@ export const mockCats: Cat[] = [
     ownerName: "Sarah Johnson",
     ownerAvatar: "https://ui-avatars.com/api/?name=Sarah+Johnson",
     ownerType: "individual",
+    ownerPhone: "(212) 555-0144",
     gallery: [
       "https://images.unsplash.com/photo-1606214174585-fe31582dc6ee?w=800",
       "https://images.unsplash.com/photo-1611003228941-98852ba62227?w=800"
@@ -109,6 +112,7 @@ export const mockCats: Cat[] = [
     ownerName: "Happy Tails Shelter",
     ownerAvatar: "https://ui-avatars.com/api/?name=Happy+Tails",
     ownerType: "shelter",
+    ownerPhone: "(323) 555-0187",
     gallery: [
       "https://images.unsplash.com/photo-1513245543132-31f507417b26?w=800"
     ]
@@ -128,6 +132,7 @@ export const mockCats: Cat[] = [
     ownerName: "Mike Chen",
     ownerAvatar: "https://ui-avatars.com/api/?name=Mike+Chen",
     ownerType: "individual",
+    ownerPhone: "(206) 555-0176",
     gallery: [
       "https://images.unsplash.com/photo-1571566882372-1598d88abd90?w=800"
     ]
@@ -147,6 +152,7 @@ export const mockCats: Cat[] = [
     ownerName: "Austin Animal Center",
     ownerAvatar: "https://ui-avatars.com/api/?name=Austin+Animal",
     ownerType: "shelter",
+    ownerPhone: "(512) 555-0139",
     gallery: [
       "https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=800"
     ]
@@ -166,6 +172,7 @@ export const mockCats: Cat[] = [
     ownerName: "Emma Wilson",
     ownerAvatar: "https://ui-avatars.com/api/?name=Emma+Wilson",
     ownerType: "individual",
+    ownerPhone: "(305) 555-0112",
     gallery: [
       "https://images.unsplash.com/photo-1598188306155-25e400eb5078?w=800"
     ]
