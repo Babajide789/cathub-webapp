@@ -1,57 +1,54 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import type { CartProduct } from "@/types/cart";
-
-type Product = {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-};
-
-type CartItem = {
-  productId: string;
-  quantity: number;
-  product: CartProduct;
-};
+import type { CartProduct, CartItem } from "@/types/cart";
 
 type CartContextType = {
   cart: CartItem[];
-  addToCart: (product: CartProduct) => void;
+  addToCart: (product: CartProduct, quantity?: number) => void;
   updateQuantity: (productId: string, delta: number) => void;
   removeItem: (productId: string) => void;
   clearCart: () => void;
+  itemCount: number;
+  subtotal: number;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
-  const [cart, setCart] = useState<CartItem[]>(() => {
-  if (typeof window === "undefined") return [];
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [hydrated, setHydrated] = useState(false);
 
-  const stored = localStorage.getItem("cart");
-  return stored ? JSON.parse(stored) : [];
-});
-
-  // Save to localStorage
+  // Hydrate from localStorage after mount to avoid SSR/client mismatch
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
+    try {
+      const stored = localStorage.getItem("cart");
+      if (stored) setCart(JSON.parse(stored));
+    } catch {
+      // corrupted storage — ignore, start fresh
+    } finally {
+      setHydrated(true);
+    }
+  }, []);
 
-  const addToCart = (product: Product) => {
+  useEffect(() => {
+    if (!hydrated) return; // don't stomp storage before we've read it
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart, hydrated]);
+
+  const addToCart = (product: CartProduct, quantity = 1) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.productId === product.id);
 
       if (existing) {
         return prev.map((item) =>
           item.productId === product.id
-            ? { ...item, quantity: Math.min(item.quantity + 1, 10) }
+            ? { ...item, quantity: Math.min(item.quantity + quantity, 10) }
             : item
         );
       }
 
-      return [...prev, { productId: product.id, quantity: 1, product }];
+      return [...prev, { productId: product.id, quantity: Math.min(quantity, 10), product }];
     });
   };
 
@@ -59,10 +56,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setCart((prev) =>
       prev.map((item) =>
         item.productId === productId
-          ? {
-              ...item,
-              quantity: Math.max(1, Math.min(10, item.quantity + delta)),
-            }
+          ? { ...item, quantity: Math.max(1, Math.min(10, item.quantity + delta)) }
           : item
       )
     );
@@ -74,9 +68,12 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const clearCart = () => setCart([]);
 
+  const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const subtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, updateQuantity, removeItem, clearCart }}
+      value={{ cart, addToCart, updateQuantity, removeItem, clearCart, itemCount, subtotal }}
     >
       {children}
     </CartContext.Provider>
