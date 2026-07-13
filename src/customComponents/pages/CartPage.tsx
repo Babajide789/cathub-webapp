@@ -1,43 +1,54 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { mockProducts, mockCartItems } from "../data/mockData";
-import Link from "next/link";
-import Image from "next/image";
+import { useCart } from "@/app/context/CartContext";
 
 export function CartPage() {
-  const [cartItems, setCartItems] = useState(
-    mockCartItems.map((item) => ({
-      ...item,
-      product: mockProducts.find((p) => p.id === item.productId)!,
-    }))
-  );
+  const { cart, updateQuantity, removeItem } = useCart();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
-  const updateQuantity = (productId: string, delta: number) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item.productId === productId
-          ? { ...item, quantity: Math.max(1, Math.min(10, item.quantity + delta)) }
-          : item
-      )
-    );
-  };
-
-  const removeItem = (productId: string) => {
-    setCartItems((items) => items.filter((item) => item.productId !== productId));
-  };
-
-  const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const shipping = subtotal > 50 ? 0 : 5.99;
+  const subtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const shipping = subtotal === 0 || subtotal > 50 ? 0 : 5.99;
   const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;
 
-  if (cartItems.length === 0) {
+  const handleCheckout = async () => {
+    setCheckoutError(null);
+    setIsCheckingOut(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: cart.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+          })),
+        }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error ?? "Unable to start checkout");
+      }
+
+      const { url } = await res.json();
+      window.location.href = url; // redirect to Stripe-hosted Checkout page
+    } catch (err) {
+      setCheckoutError(err instanceof Error ? err.message : "Something went wrong");
+      setIsCheckingOut(false);
+    }
+  };
+
+  if (cart.length === 0) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center py-12">
@@ -47,9 +58,7 @@ export function CartPage() {
           <h2 className="mb-2">Your cart is empty</h2>
           <p className="text-muted-foreground mb-6">Add some items to get started!</p>
           <Link href="/shop">
-            <Button>
-              Start Shopping
-            </Button>
+            <Button>Start Shopping</Button>
           </Link>
         </div>
       </div>
@@ -58,7 +67,6 @@ export function CartPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="bg-white border-b sticky top-0 md:top-16 z-40">
         <div className="container mx-auto px-4 py-4">
           <Link href="/shop">
@@ -71,12 +79,11 @@ export function CartPage() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <h1 className="mb-8">Shopping Cart ({cartItems.length})</h1>
+        <h1 className="mb-8">Shopping Cart ({cart.length})</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {cartItems.map((item) => (
+            {cart.map((item) => (
               <Card key={item.productId} className="p-4">
                 <div className="flex gap-4">
                   <Link href={`/shop/${item.productId}`} className="shrink-0">
@@ -85,6 +92,8 @@ export function CartPage() {
                         src={item.product.image}
                         alt={item.product.name}
                         className="w-full h-full object-cover"
+                        width={96}
+                        height={96}
                       />
                     </div>
                   </Link>
@@ -94,9 +103,9 @@ export function CartPage() {
                         {item.product.name}
                       </h3>
                     </Link>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {item.product.category}
-                    </p>
+                    {item.product.category && (
+                      <p className="text-sm text-muted-foreground mb-3">{item.product.category}</p>
+                    )}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center border rounded-lg">
                         <Button
@@ -108,9 +117,7 @@ export function CartPage() {
                         >
                           <Minus className="w-3 h-3" />
                         </Button>
-                        <span className="w-10 text-center text-sm font-medium">
-                          {item.quantity}
-                        </span>
+                        <span className="w-10 text-center text-sm font-medium">{item.quantity}</span>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -139,7 +146,6 @@ export function CartPage() {
             ))}
           </div>
 
-          {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
               <Card className="p-6">
@@ -152,9 +158,7 @@ export function CartPage() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Shipping</span>
-                    <span className="font-medium">
-                      {shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`}
-                    </span>
+                    <span className="font-medium">{shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Tax</span>
@@ -169,8 +173,17 @@ export function CartPage() {
                   <span className="text-2xl font-semibold">${total.toFixed(2)}</span>
                 </div>
 
-                <Button className="w-full mb-3" size="lg">
-                  Proceed to Checkout
+                {checkoutError && <p className="text-sm text-destructive mb-3">{checkoutError}</p>}
+
+                <Button className="w-full mb-3" size="lg" onClick={handleCheckout} disabled={isCheckingOut}>
+                  {isCheckingOut ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Redirecting...
+                    </>
+                  ) : (
+                    "Proceed to Checkout"
+                  )}
                 </Button>
 
                 {shipping > 0 && (

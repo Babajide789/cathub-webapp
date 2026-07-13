@@ -12,10 +12,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductCard } from "../components/ProductCard";
 import { mockProducts } from "../data/mockData";
 import Image from "next/image";
+import { useCart } from "@/app/context/CartContext";
+import { mapProductToCart } from "@/lib/adapters/productAdapter";
 
 export function ProductDetailPage() {
   const params = useParams();
   const id = params?.id as string;
+
+  const { addToCart } = useCart();
+  const [added, setAdded] = useState(false);
 
   const product = mockProducts.find((p) => p.id === id);
   const [quantity, setQuantity] = useState(1);
@@ -56,6 +61,8 @@ export function ProductDetailPage() {
                 src={product.image}
                 alt={product.name}
                 className="w-full h-full object-cover"
+                width={1200}
+                height={800}
               />
             </div>
           </div>
@@ -125,9 +132,17 @@ export function ProductDetailPage() {
                   </span>
                 </div>
                 <div className="flex gap-3">
-                  <Button className="flex-1" size="lg">
+                  <Button
+                    className="flex-1"
+                    size="lg"
+                    onClick={() => {
+                      addToCart(mapProductToCart(product), quantity);
+                      setAdded(true);
+                      setTimeout(() => setAdded(false), 2000);
+                    }}
+                  >
                     <ShoppingCart className="w-4 h-4 mr-2" />
-                    Add to Cart
+                    {added ? "Added!" : "Add to Cart"}
                   </Button>
                   <Button variant="outline" size="lg">
                     <Heart className="w-4 h-4" />
