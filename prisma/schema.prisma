@@ -19,6 +19,15 @@ model User {
   createdAt      DateTime @default(now())
   cats           Cat[]
   preferences    UserPreferences?
+  posts          CommunityPost[]
+  comments       CommunityComment[]
+  orders         Order[]
+  savedCats      SavedCat[]
+  savedProducts  SavedProduct[]
+  savedPictures  SavedPicture[]
+  conversationsStarted Conversation[] @relation("ConversationInitiator")
+  conversationsReceived Conversation[] @relation("ConversationRecipient")
+  messages       Message[]
 }
 
 model Cat {
@@ -42,4 +51,143 @@ model UserPreferences {
   notifyMarketplace Boolean @default(false)
   notifyMating      Boolean @default(false)
   notifyVets        Boolean @default(false)
+}
+
+model CommunityPost {
+  id        String             @id @default(cuid())
+  authorId  String
+  author    User               @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  image     String?
+  likes     Int                @default(0)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  comments  CommunityComment[]
+
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+model CommunityComment {
+  id        String        @id @default(cuid())
+  postId    String
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime      @default(now())
+
+  @@index([postId])
+  @@index([authorId])
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  userId            String?
+  user              User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  status            OrderStatus @default(PENDING)
+  provider          String      @default("stripe")
+  providerSessionId String?     @unique
+  currency          String      @default("usd")
+  subtotalCents     Int
+  shippingCents     Int         @default(0)
+  taxCents          Int         @default(0)
+  totalCents        Int
+  customerEmail     String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  paidAt            DateTime?
+  items             OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id          String @id @default(cuid())
+  orderId     String
+  order       Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  name        String
+  image       String?
+  category    String?
+  quantity    Int
+  unitCents   Int
+  totalCents  Int
+
+  @@index([orderId])
+}
+
+model SavedCat {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  catId     String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, catId])
+  @@index([userId])
+}
+
+model SavedProduct {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([userId])
+}
+
+model SavedPicture {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  image     String
+  caption   String?
+  source    String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Conversation {
+  id                      String    @id @default(cuid())
+  initiatorId             String
+  initiator               User      @relation("ConversationInitiator", fields: [initiatorId], references: [id], onDelete: Cascade)
+  recipientId             String?
+  recipient               User?     @relation("ConversationRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
+  externalRecipientName   String?
+  externalRecipientAvatar String?
+  subject                 String?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  messages                Message[]
+
+  @@index([initiatorId])
+  @@index([recipientId])
+  @@index([updatedAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  text           String
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([readAt])
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELED
+  FAILED
 }

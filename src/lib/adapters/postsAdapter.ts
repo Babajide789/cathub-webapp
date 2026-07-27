@@ -1,4 +1,4 @@
-import type { Post } from "@/types";
+import type { Post } from "@/types/posts";
 import type { PostCardProps } from "@/types/ui";
 
 /**
@@ -6,6 +6,7 @@ import type { PostCardProps } from "@/types/ui";
  */
 export function mapPostToPostCard(post: Post): PostCardProps {
   return {
+    id: post.id,
     userName: post.user.name,
     userAvatar: post.user.avatar,
     image: post.image ?? "",
@@ -13,5 +14,6 @@ export function mapPostToPostCard(post: Post): PostCardProps {
     likes: post.likes,
     comments: post.comments,
     timestamp: post.createdAt,
+    recentComments: post.recentComments ?? [],
   };
 }

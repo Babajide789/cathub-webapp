@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe/server";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -21,8 +22,19 @@ export async function POST(req: Request) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    // TODO: mark order paid in your DB, send confirmation email, decrement stock
-    console.log("Payment confirmed:", session.id);
+    const orderId = session.metadata?.orderId;
+
+    if (orderId) {
+      await prisma.order.update({
+        where: { id: orderId },
+        data: {
+          status: "PAID",
+          providerSessionId: session.id,
+          customerEmail: session.customer_details?.email ?? session.customer_email ?? undefined,
+          paidAt: new Date(),
+        },
+      });
+    }
   }
 
   return NextResponse.json({ received: true });

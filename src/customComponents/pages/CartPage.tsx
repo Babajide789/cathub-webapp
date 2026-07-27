@@ -9,9 +9,13 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/app/context/CartContext";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export function CartPage() {
   const { cart, updateQuantity, removeItem } = useCart();
+  const { data: session } = useSession();
+  const router = useRouter();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
@@ -22,6 +26,12 @@ export function CartPage() {
 
   const handleCheckout = async () => {
     setCheckoutError(null);
+
+    if (!session?.user) {
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent("/cart")}`);
+      return;
+    }
+
     setIsCheckingOut(true);
     try {
       const res = await fetch("/api/checkout", {

@@ -41,7 +41,7 @@ export function ServicesPage() {
     return () => clearTimeout(timer);
   }, [location]);
 
-  // React Query (✅ TYPED)
+  // React Query (TYPED)
   const { data, isLoading } = useQuery<GetServicesResponse>({
     queryKey: ["services", page, debouncedLocation, selectedType, distance],
     queryFn: () =>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -22,9 +23,12 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockCats } from "../data/mockData";
+import { useSession } from "next-auth/react";
 
 export function CatDetailPage() {
   const params = useParams();
+  const router = useRouter();
+  const { data: session } = useSession();
   const id = params?.id as string;
 
   const cat = mockCats.find((item) => item.id === id);
@@ -69,6 +73,20 @@ export function CatDetailPage() {
     } catch {
       setShareStatus("Share unavailable");
     }
+  };
+
+  const requireSignIn = (href: string, fallbackPath = href) => {
+    if (!session?.user) {
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(fallbackPath)}`);
+      return;
+    }
+
+    if (href.startsWith("tel:")) {
+      window.location.href = href;
+      return;
+    }
+
+    router.push(href);
   };
 
   return (
@@ -235,25 +253,19 @@ export function CatDetailPage() {
                 <Separator className="my-6" />
 
                 <div className="space-y-3">
-                  <Link href={messageHref}>
-                    <Button className="w-full" size="lg">
-                      <Heart className="mr-2 h-4 w-4" />
-                      Adopt {cat.name}
-                    </Button>
-                  </Link>
+                  <Button className="w-full" size="lg" onClick={() => requireSignIn(messageHref)}>
+                    <Heart className="mr-2 h-4 w-4" />
+                    Adopt {cat.name}
+                  </Button>
                   <div className="grid grid-cols-2 gap-2">
-                    <Link href={ownerPhoneHref}>
-                      <Button variant="outline" className="w-full">
-                        <Phone className="mr-2 h-4 w-4" />
-                        Call
-                      </Button>
-                    </Link>
-                    <Link href={messageHref}>
-                      <Button variant="outline" className="w-full">
-                        <Mail className="mr-2 h-4 w-4" />
-                        Message
-                      </Button>
-                    </Link>
+                    <Button variant="outline" className="w-full" onClick={() => requireSignIn(ownerPhoneHref, `/adopt/${cat.id}`)}>
+                      <Phone className="mr-2 h-4 w-4" />
+                      Call
+                    </Button>
+                    <Button variant="outline" className="w-full" onClick={() => requireSignIn(messageHref)}>
+                      <Mail className="mr-2 h-4 w-4" />
+                      Message
+                    </Button>
                   </div>
                   <Button variant="ghost" className="w-full" onClick={handleShare}>
                     <Share2 className="mr-2 h-4 w-4" />

@@ -21,6 +21,9 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import { useSession } from "next-auth/react";
+import { useCart } from "@/app/context/CartContext";
+import { useQuery } from "@tanstack/react-query";
+import { getConversations } from "@/lib/api/messages";
 
 const navItems = [
   { path: "/", label: "Home", icon: Home },
@@ -34,9 +37,19 @@ export function Header() {
   const pathname = usePathname();
 
   const { data: session } = useSession();
+  const { itemCount } = useCart();
   const isSignedIn = Boolean(session?.user);
   const userEmail = session?.user?.email;
   const userInitial = userEmail?.charAt(0).toUpperCase();
+  const { data: conversations = [] } = useQuery({
+    queryKey: ["conversations"],
+    queryFn: getConversations,
+    enabled: isSignedIn,
+  });
+  const unreadMessages = conversations.reduce(
+    (sum, conversation) => sum + conversation.unread,
+    0
+  );
 
   return (
     <>
@@ -92,16 +105,20 @@ export function Header() {
                     <Link href="/messages" aria-label="Messages">
                       <Button variant="ghost" size="icon" className="relative">
                         <MessageSquare className="w-5 h-5" />
-                        <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                        {unreadMessages > 0 && (
+                          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                        )}
                       </Button>
                     </Link>
 
                     <Link href="/cart" aria-label="Cart">
                       <Button variant="ghost" size="icon" className="relative">
                         <ShoppingCart className="w-5 h-5" />
-                        <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                          3
-                        </span>
+                        {itemCount > 0 && (
+                          <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                            {itemCount > 99 ? "99+" : itemCount}
+                          </span>
+                        )}
                       </Button>
                     </Link>
 
@@ -149,16 +166,20 @@ export function Header() {
               <Link href="/messages" aria-label="Messages">
                 <Button variant="ghost" size="icon" className="relative h-9 w-9">
                   <MessageSquare className="w-5 h-5" />
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+                  {unreadMessages > 0 && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+                  )}
                 </Button>
               </Link>
 
               <Link href="/cart" aria-label="Cart">
                 <Button variant="ghost" size="icon" className="relative h-9 w-9">
                   <ShoppingCart className="w-5 h-5" />
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                    3
-                  </span>
+                  {itemCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center">
+                      {itemCount > 99 ? "99+" : itemCount}
+                    </span>
+                  )}
                 </Button>
               </Link>
 

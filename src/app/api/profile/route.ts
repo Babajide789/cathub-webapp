@@ -1,6 +1,29 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { cats as adoptionCats } from "@/lib/data";
+
+function enrichProfile<T extends { savedCats: { catId: string; createdAt?: Date }[] }>(
+  profile: T
+) {
+  const catMap = new Map(adoptionCats.map((cat) => [cat.id, cat]));
+
+  return {
+    ...profile,
+    savedCats: profile.savedCats.map((savedCat) => {
+      const cat = catMap.get(savedCat.catId);
+      return {
+        catId: savedCat.catId,
+        name: cat?.name ?? "Saved cat",
+        breed: cat?.breed ?? null,
+        age: cat?.age ?? null,
+        image: cat?.image ?? null,
+        location: cat?.location ?? null,
+        savedAt: savedCat.createdAt?.toISOString() ?? null,
+      };
+    }),
+  };
+}
 
 export async function GET() {
   try {
@@ -41,6 +64,43 @@ export async function GET() {
             image: true,
           },
         },
+        orders: {
+          orderBy: { createdAt: "desc" },
+          take: 10,
+          select: {
+            id: true,
+            status: true,
+            totalCents: true,
+            currency: true,
+            createdAt: true,
+            items: {
+              select: {
+                id: true,
+                name: true,
+                quantity: true,
+                totalCents: true,
+              },
+            },
+          },
+        },
+        savedPictures: {
+          orderBy: { createdAt: "desc" },
+          take: 12,
+          select: {
+            id: true,
+            image: true,
+            caption: true,
+            source: true,
+            createdAt: true,
+          },
+        },
+        savedCats: {
+          orderBy: { createdAt: "desc" },
+          select: { catId: true, createdAt: true },
+        },
+        savedProducts: {
+          select: { productId: true },
+        },
       },
     });
 
@@ -50,7 +110,7 @@ export async function GET() {
       });
     }
 
-    return new Response(JSON.stringify(user), {
+    return new Response(JSON.stringify(enrichProfile(user)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -140,10 +200,47 @@ export async function PATCH(req: Request) {
             image: true,
           },
         },
+        orders: {
+          orderBy: { createdAt: "desc" },
+          take: 10,
+          select: {
+            id: true,
+            status: true,
+            totalCents: true,
+            currency: true,
+            createdAt: true,
+            items: {
+              select: {
+                id: true,
+                name: true,
+                quantity: true,
+                totalCents: true,
+              },
+            },
+          },
+        },
+        savedPictures: {
+          orderBy: { createdAt: "desc" },
+          take: 12,
+          select: {
+            id: true,
+            image: true,
+            caption: true,
+            source: true,
+            createdAt: true,
+          },
+        },
+        savedCats: {
+          orderBy: { createdAt: "desc" },
+          select: { catId: true, createdAt: true },
+        },
+        savedProducts: {
+          select: { productId: true },
+        },
       },
     });
 
-    return new Response(JSON.stringify(user), {
+    return new Response(JSON.stringify(enrichProfile(user)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

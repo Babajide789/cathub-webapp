@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   ArrowLeft,
   CalendarDays,
@@ -27,7 +28,6 @@ import {
 import type { Conversation, Message } from "@/types/messages";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -40,33 +40,40 @@ const starterPrompts = [
 
 export default function MessagesPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { status } = useSession();
   const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const [selectedId, setSelectedId] = useState(searchParams.get("conversationId") || "1");
+  const [selectedId, setSelectedId] = useState(searchParams.get("conversationId") || "");
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState(searchParams.get("draft") || "");
   const [showChatOnMobile, setShowChatOnMobile] = useState(Boolean(searchParams.get("conversationId")));
 
   const recipientName = searchParams.get("recipient");
   const recipientAvatar = searchParams.get("avatar");
+  const draft = searchParams.get("draft") || "";
 
   const { data: conversations = [], isLoading: isConversationsLoading } =
     useQuery<Conversation[]>({
       queryKey: ["conversations"],
       queryFn: getConversations,
+      enabled: status === "authenticated",
     });
+
+  const activeConversationId =
+    selectedId || (!recipientName ? conversations[0]?.id ?? "" : "");
 
   const enrichedConversations = useMemo(() => {
     if (!recipientName) return conversations;
 
-    const exists = conversations.some((conversation) => conversation.id === selectedId);
+    const exists = conversations.some((conversation) => conversation.id === activeConversationId);
     if (exists) return conversations;
 
     return [
       {
-        id: selectedId,
+        id: activeConversationId,
         name: recipientName,
         avatar: recipientAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(recipientName)}`,
         lastMessage: message || "New adoption inquiry",
@@ -76,15 +83,15 @@ export default function MessagesPage() {
       },
       ...conversations,
     ];
-  }, [conversations, message, recipientAvatar, recipientName, selectedId]);
+  }, [activeConversationId, conversations, message, recipientAvatar, recipientName]);
 
   const { data: messages = [], isLoading: isMessagesLoading } = useQuery<Message[]>({
-    queryKey: ["messages", selectedId],
-    queryFn: () => getMessages(selectedId),
-    enabled: Boolean(selectedId),
+    queryKey: ["messages", activeConversationId],
+    queryFn: () => getMessages(activeConversationId),
+    enabled: status === "authenticated" && Boolean(activeConversationId),
   });
 
-  const activeUser = enrichedConversations.find((conversation) => conversation.id === selectedId);
+  const activeUser = enrichedConversations.find((conversation) => conversation.id === activeConversationId);
 
   const filteredConversations = enrichedConversations.filter((conversation) =>
     conversation.name.toLowerCase().includes(search.toLowerCase())
@@ -94,8 +101,9 @@ export default function MessagesPage() {
     mutationFn: sendMessage,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["messages", selectedId],
+        queryKey: ["messages", activeConversationId],
       });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
   });
 
@@ -105,11 +113,14 @@ export default function MessagesPage() {
   };
 
   const handleSendMessage = () => {
-    if (!message.trim()) return;
+    if (!activeConversationId || !message.trim()) return;
 
     mutation.mutate({
-      conversationId: selectedId,
+      conversationId: activeConversationId,
       text: message.trim(),
+      recipientName: activeUser?.name,
+      recipientAvatar: activeUser?.avatar,
+      subject: draft,
     });
 
     setMessage("");
@@ -128,6 +139,22 @@ export default function MessagesPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent("/messages")}`);
+    }
+  }, [router, status]);
+
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div className="min-h-[calc(100dvh-7.5rem)] bg-slate-50 px-4 py-12">
+        <div className="mx-auto max-w-md rounded-lg border bg-white p-6 text-center shadow-sm">
+          <p className="text-sm text-muted-foreground">Loading messages...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[calc(100dvh-7.5rem)] bg-slate-50 px-3 py-3 sm:px-4 lg:min-h-[calc(100dvh-4rem)] lg:p-6">
@@ -168,7 +195,7 @@ export default function MessagesPage() {
                 </div>
               ) : filteredConversations.length === 0 ? (
                 <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-                  No conversations match your search.
+                  {search ? "No conversations match your search." : "No conversations yet."}
                 </div>
               ) : (
                 filteredConversations.map((conversation) => (
@@ -176,7 +203,7 @@ export default function MessagesPage() {
                     key={conversation.id}
                     onClick={() => handleSelectConversation(conversation.id)}
                     className={`w-full rounded-lg px-3 py-3 text-left transition ${
-                      selectedId === conversation.id
+                      activeConversationId === conversation.id
                         ? "bg-slate-900 text-white shadow-sm"
                         : "hover:bg-slate-50"
                     }`}
@@ -200,7 +227,7 @@ export default function MessagesPage() {
                           <p className="truncate font-medium">{conversation.name}</p>
                           <span
                             className={`shrink-0 text-xs ${
-                              selectedId === conversation.id
+                              activeConversationId === conversation.id
                                 ? "text-white/70"
                                 : "text-muted-foreground"
                             }`}
@@ -211,7 +238,7 @@ export default function MessagesPage() {
                         <div className="flex items-center justify-between gap-3">
                           <p
                             className={`truncate text-sm ${
-                              selectedId === conversation.id
+                              activeConversationId === conversation.id
                                 ? "text-white/75"
                                 : "text-muted-foreground"
                             }`}
@@ -305,6 +332,14 @@ export default function MessagesPage() {
                       }`}
                     />
                   ))}
+                </div>
+              ) : !activeConversationId ? (
+                <div className="mx-auto max-w-md rounded-lg border bg-white p-6 text-center shadow-sm">
+                  <Sparkles className="mx-auto mb-3 h-8 w-8 text-primary" />
+                  <h2 className="mb-2 text-lg font-semibold">Your inbox is ready</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Conversations with cat owners, adopters, and service providers will appear here.
+                  </p>
                 </div>
               ) : messages.length === 0 ? (
                 <div className="mx-auto max-w-md rounded-lg border bg-white p-6 text-center shadow-sm">
@@ -415,7 +450,7 @@ export default function MessagesPage() {
 
               <Button
                 onClick={handleSendMessage}
-                disabled={!message.trim() || mutation.isPending}
+                disabled={!activeConversationId || !message.trim() || mutation.isPending}
                 size="icon"
                 aria-label="Send message"
               >

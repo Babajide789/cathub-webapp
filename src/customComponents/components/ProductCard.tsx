@@ -8,6 +8,8 @@ import Link from "next/link";
 import { useCart } from "@/app/context/CartContext";
 import Image from "next/image";
 import { mapProductToCart } from "@/lib/adapters/productAdapter";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface ProductCardProps {
   id: string;
@@ -22,6 +24,8 @@ interface ProductCardProps {
 
 export function ProductCard({ id, name, price, category, image, rating, reviews, inStock }: ProductCardProps) {
   const { addToCart } = useCart();
+  const { data: session } = useSession();
+  const router = useRouter();
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 group">
@@ -58,6 +62,11 @@ export function ProductCard({ id, name, price, category, image, rating, reviews,
             disabled={!inStock}
             onClick={(e) => {
               e.preventDefault();
+
+              if (!session?.user) {
+                router.push(`/auth/signin?callbackUrl=${encodeURIComponent("/shop")}`);
+                return;
+              }
 
               addToCart(
                 mapProductToCart({
