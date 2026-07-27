@@ -1,8 +1,12 @@
+"use client";
+
 import { MapPin, Phone, Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 interface ServiceCardProps {
   name: string;
   type: "vet" | "grooming" | "boarding";
@@ -26,6 +30,22 @@ const serviceTypeLabels = {
 };
 
 export function ServiceCard({ name, type, rating, distance, address, phone, image }: ServiceCardProps) {
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  const handleBook = () => {
+    if (!session?.user) {
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent("/services")}`);
+      return;
+    }
+
+    router.push(
+      `/messages?conversationId=service-${encodeURIComponent(name.toLowerCase().replace(/\s+/g, "-"))}&recipient=${encodeURIComponent(
+        name
+      )}&draft=${encodeURIComponent(`Hi ${name}, I would like to book an appointment.`)}`
+    );
+  };
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="md:flex">
@@ -64,7 +84,7 @@ export function ServiceCard({ name, type, rating, distance, address, phone, imag
               <p>{phone}</p>
             </div>
           </div>
-          <Button className="w-full md:w-auto">
+          <Button className="w-full md:w-auto" onClick={handleBook}>
             Book Appointment
           </Button>
         </div>

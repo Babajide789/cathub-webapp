@@ -108,6 +108,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmingSignOut, setConfirmingSignOut] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -254,7 +255,7 @@ export default function SettingsPage() {
             </button>
             <button
               type="button"
-              onClick={() => signOut({ callbackUrl: "/auth/signin" })}
+              onClick={() => setConfirmingSignOut(true)}
               className="inline-flex items-center gap-2 rounded-md border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-700 shadow-sm transition hover:bg-red-50"
             >
               <LogOut className="h-4 w-4" />
@@ -529,6 +530,33 @@ export default function SettingsPage() {
           </aside>
         </form>
       </div>
+
+      {confirmingSignOut && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="text-lg font-semibold text-gray-950">Sign out of CatHub?</h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Stay signed in to keep posting, messaging, saving cats, and checking out without interruption.
+            </p>
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmingSignOut(false)}
+                className="rounded-md border border-gray-200 px-4 py-2 text-sm font-medium hover:bg-gray-50"
+              >
+                Stay signed in
+              </button>
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: "/auth/signin" })}
+                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

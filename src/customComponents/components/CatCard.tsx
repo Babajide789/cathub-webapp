@@ -5,6 +5,9 @@ import { MapPin, Heart } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 export interface CatCardProps {
   id: string;
   name: string;
@@ -16,6 +19,40 @@ export interface CatCardProps {
 }
 
 export function CatCard({ id, name, age, breed, location, image, gender }: CatCardProps) {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [toast, setToast] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  async function handleFavorite() {
+    if (!session?.user) {
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent("/adopt")}`);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await fetch("/api/saved-cats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ catId: id }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error ?? "Unable to save cat");
+      }
+
+      setToast(`${name} added to favorites`);
+      window.setTimeout(() => setToast(""), 2400);
+    } catch (error) {
+      setToast(error instanceof Error ? error.message : "Unable to save cat");
+      window.setTimeout(() => setToast(""), 2400);
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <Link href={`/adopt/${id}`}>
       <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 group cursor-pointer">
@@ -27,11 +64,13 @@ export function CatCard({ id, name, age, breed, location, image, gender }: CatCa
             fill
           />
           <button
-            className="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white transition-colors"
+            className="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white transition-colors disabled:opacity-60"
+            disabled={saving}
             onClick={(e) => {
               e.preventDefault();
-              console.log("Add to favorites");
+              handleFavorite();
             }}
+            aria-label={`Save ${name}`}
           >
             <Heart className="w-4 h-4 text-gray-600" />
           </button>
@@ -46,6 +85,11 @@ export function CatCard({ id, name, age, breed, location, image, gender }: CatCa
             <MapPin className="w-4 h-4 mr-1" />
             <span>{location}</span>
           </div>
+          {toast && (
+            <div className="mt-3 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+              {toast}
+            </div>
+          )}
         </div>
       </Card>
     </Link>

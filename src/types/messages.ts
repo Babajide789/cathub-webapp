@@ -19,4 +19,7 @@ export type Message = {
 export type SendMessagePayload = {
   conversationId: string;
   text: string;
+  recipientName?: string;
+  recipientAvatar?: string;
+  subject?: string;
 };
